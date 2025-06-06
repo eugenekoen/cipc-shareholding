@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Share Securities Register</title>
+    <link rel="icon" href="favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            font-size: 14px;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 4px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 1350px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-top: 5px;
+            margin-bottom: 0px;
+        }
+
+        .config-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            flex-wrap: wrap;
+        }
+
+        .config-controls button,
+        .config-controls input[type="text"] {
+            padding: 8px 12px;
+            font-size: 0.9em;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 5px;
+        }
+
+        .config-controls button {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .config-controls button.print-btn {
+            background-color: #6c757d;
+        }
+
+        .config-controls button.print-btn:hover {
+            background-color: #5a6268;
+        }
+
+        .config-controls button:hover {
+            background-color: #0056b3;
+        }
+
+        .config-controls input[type="text"] {
+            flex-grow: 1;
+        }
+
+        #loadConfigFile {
+            display: none;
+        }
+
+        .company-details {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .company-details legend {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        .company-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr 1fr;
+            gap: 15px 20px;
+        }
+
+        .company-details-grid .form-group {
+            margin-bottom: 0;
+        }
+
+        .company-details-address-group {
+            grid-row: 1 / span 2;
+            grid-column: 2 / 3;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 5px;
+        }
+
+        .form-group-cell:empty {
+            padding: 0;
+            margin: 0;
+        }
+
+
+        .form-group label {
+            margin-bottom: 3px;
+            font-weight: 500;
+            color: #555;
+            font-size: 0.9em;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group input[type="email"],
+        .form-group textarea {
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100%;
+            font-size: 0.9em;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .date-input-group {
+            position: relative;
+            display: flex;
+        }
+
+        .date-input-group input[type="text"] {
+            flex-grow: 1;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+            min-width: 0;
+            /* FIX: This allows the input to shrink and prevents the button from wrapping */
+        }
+
+        .date-picker-trigger {
+            padding: 6px 8px;
+            border: 1px solid #ddd;
+            border-left: none;
+            background-color: #eee;
+            cursor: pointer;
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+            font-size: 0.9em;
+            line-height: 1.2;
+        }
+
+        .date-picker-trigger:hover {
+            background-color: #ddd;
+        }
+
+        .hidden-date-input {
+            display: none;
+        }
+
+        .form-group textarea.ownerAddress,
+        .form-group textarea.companyAddressTextarea {
+            min-height: auto;
+            resize: none;
+            overflow: hidden;
+        }
+
+        .shareholder-records-container>h3 {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            color: #555;
+            text-align: center;
+        }
+
+        .shareholder-record {
+            background-color: #e6ffe6;
+            border: 1px solid #5cb85c;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            position: relative;
+        }
+
+        .shareholder-record-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #3c763d;
+            border-bottom: 1px solid #a3d0a3;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .shareholder-record-header>span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            padding-right: 15px;
+        }
+
+
+        .record-header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .delete-record-btn {
+            background-color: #d9534f;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .collapse-record-btn {
+            background-color: #f0ad4e;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .collapse-record-btn:hover {
+            background-color: #ec9b3b;
+        }
+
+        .record-bulk-actions {
+            text-align: center;
+            margin: 10px 0 20px 0;
+        }
+
+        .bulk-action-btn {
+            background-color: #6c757d;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin: 5px;
+        }
+
+        .bulk-action-btn:hover {
+            background-color: #5a6268;
+        }
+
+        .add-record-btn-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .add-record-btn {
+            background-color: #5cb85c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 5px;
+        }
+
+
+        .owner-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 20px;
+            margin-bottom: 15px;
+        }
+
+        .owner-details-grid .form-group-cell .form-group {
+            margin-bottom: 0;
+        }
+
+
+        .id-country-group,
+        .registration-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .id-country-group>.form-group,
+        .registration-group>.form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+
+        .shares-activity-wrapper {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .shares-activity-section {
+            flex: 1;
+            padding: 10px;
+            border: 1px dashed #a3d0a3;
+            border-radius: 4px;
+        }
+
+        .shares-activity-section h5 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #4CAF50;
+            text-align: center;
+            font-size: 1em;
+            border-bottom: 1px solid #c3e6cb;
+            padding-bottom: 5px;
+        }
+
+        .transaction-headers {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 0.8em;
+            color: #333;
+            padding: 0 5px;
+            align-items: center;
+        }
+
+        .transaction-headers>div {
+            flex: 1;
+            text-align: center;
+            padding: 4px 2px;
+        }
+
+        .transaction-headers>div.date-col,
+        .transaction-row .form-group.date-col {
+            flex-basis: 120px;
+            flex-grow: 0;
+            flex-shrink: 0;
+        }
+
+        .transaction-headers>div.new-cert-col,
+        .transaction-row .form-group.new-cert-col {
+            flex: 1;
+        }
+
+        .transaction-headers>div.shares-col,
+        .transaction-row .form-group.shares-col {
+            flex-basis: 70px;
+            flex-grow: 0;
+            flex-shrink: 0;
+        }
+
+        .transaction-headers>div.transaction-details-col,
+        .transaction-row .form-group.transaction-details-col {
+            flex: 3.2;
+        }
+
+        .transaction-headers>div.action-col-spacer,
+        .transaction-row .action-col {
+            flex-basis: 70px;
+            flex-grow: 0;
+            flex-shrink: 0;
+        }
+
+        .transaction-row {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+            margin-bottom: 8px;
+            padding: 5px;
+        }
+
+        .transaction-row .form-group {
+            margin-bottom: 0;
+        }
+
+        .transaction-row .form-group label {
+            display: none;
+        }
+
+        .delete-transaction-row-btn {
+            background-color: #d9534f;
+            color: white;
+            border: none;
+            padding: 6px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+            width: 100%;
+            height: 30px;
+        }
+
+        .add-transaction-btn {
+            background-color: #f0ad4e;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+            display: block;
+            margin: 10px auto 0 auto;
+        }
+
+        .balance-section {
+            background-color: #d9edf7;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #bce8f1;
+        }
+
+        .balance-section h5 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            color: #31708f;
+        }
+
+        .balance-section .input-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .balance-section .input-row>.form-group {
+            flex: 1;
+        }
+
+        .shareholding-summary,
+        .beneficial-interest-register {
+            margin-top: 30px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        .shareholding-summary h3,
+        .beneficial-interest-register h3 {
+            text-align: center;
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        .beneficial-interest-register h4 {
+            color: #555;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .beneficial-interest-register h4:first-of-type {
+            margin-top: 0;
+        }
+
+        .summary-table {
+            border-collapse: collapse;
+            margin-left: auto;
+            margin-right: auto;
+            width: 100%;
+        }
+
+        .summary-table th,
+        .summary-table td {
+            border: 1px solid #ddd;
+            padding: 8px 10px;
+            text-align: left;
+        }
+
+        .summary-table th {
+            background-color: #add8e6;
+            color: #31708f;
+            font-weight: bold;
+            white-space: nowrap;
+            text-align: center;
+        }
+
+        .summary-table th.name-col-header {
+            text-align: left;
+        }
+
+        .summary-table td.class-of-shares-col,
+        .summary-table td.percentage-col {
+            text-align: center;
+        }
+
+        .summary-table td.shares-col {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .summary-table tfoot td {
+            font-weight: bold;
+            background-color: #e9ecef;
+        }
+
+        .summary-table tfoot td.discrepancy-message {
+            text-align: center;
+            color: red;
+            font-style: italic;
+        }
+
+        .print-new-page {
+            page-break-before: always !important;
+        }
+
+        @page {
+            size: A4 landscape;
+            margin: 0.5cm;
+        }
+
+        @media print {
+            body {
+                font-size: 9pt;
+                margin: 0;
+                background-color: #fff;
+            }
+
+            .config-controls,
+            .add-record-btn-container,
+            .delete-record-btn,
+            .add-transaction-btn,
+            .date-picker-trigger,
+            .delete-transaction-row-btn,
+            .collapse-record-btn,
+            .record-bulk-actions {
+                display: none !important;
+            }
+
+            .container {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0;
+                max-width: 100%;
+            }
+
+            .company-details {
+                page-break-inside: avoid !important;
+            }
+
+            .shareholder-records-container>h3 {
+                page-break-after: avoid !important;
+            }
+
+            .shareholder-record {
+                page-break-inside: avoid !important;
+                box-shadow: none !important;
+                margin-bottom: 10px;
+            }
+
+            .transaction-row .action-col,
+            .transaction-headers .action-col-spacer {
+                display: none !important;
+            }
+
+            textarea,
+            textarea.ownerAddress,
+            textarea.companyAddressTextarea {
+                height: auto !important;
+                overflow: visible !important;
+                border: 1px solid #ccc !important;
+                background-color: #fff !important;
+                padding: 2px !important;
+                resize: none !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            input[type="text"],
+            input[type="number"],
+            input[type="email"] {
+                border: 1px solid #ccc !important;
+                background-color: #fff !important;
+                box-shadow: none !important;
+                padding: 4px;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            input[readonly] {
+                background-color: #f0f0f0 !important;
+                color: #000 !important;
+                border: 1px solid #bbb !important;
+            }
+
+            .shareholder-record,
+            .balance-section,
+            .company-details,
+            .summary-table th {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .shareholder-record {
+                background-color: #e6ffe6 !important;
+            }
+
+            .balance-section {
+                background-color: #d9edf7 !important;
+            }
+
+            .summary-table th {
+                background-color: #add8e6 !important;
+            }
+
+            .summary-table {
+                width: 100%;
+                min-width: 0;
+            }
+
+            .shareholding-summary,
+            .beneficial-interest-register {
+                page-break-inside: avoid !important;
+                margin-top: 20px;
+                border: 1px solid #aaa !important;
+            }
+
+            /* Rules for selective printing */
+            body.printing-register .container>.beneficial-interest-register {
+                display: none !important;
+            }
+
+            body.printing-summary .container>*:not(.shareholding-summary) {
+                display: none !important;
+            }
+
+            body.printing-summary .shareholding-summary {
+                display: block !important;
+                page-break-before: auto !important;
+            }
+
+            body.printing-beneficial .container>*:not(.beneficial-interest-register) {
+                display: none !important;
+            }
+
+            body.printing-beneficial .beneficial-interest-register {
+                display: block !important;
+                page-break-before: auto !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="config-controls">
+            <button type="button" id="loadConfigButton" onclick="document.getElementById('loadConfigFile').click()">Load
+                Config</button>
+            <input type="file" id="loadConfigFile" accept=".json" onchange="loadConfig(event)">
+            <button type="button" id="showSaveInputButton" onclick="showFilenameInput()">Save Config</button>
+            <input type="text" id="configFilename" placeholder="Enter filename (e.g., register.json)"
+                style="display: none;">
+            <button type="button" id="saveConfigButton" onclick="saveConfig()" style="display: none;">Confirm
+                Save</button>
+            <button type="button" id="printAllBtn" class="print-btn">Print All</button>
+            <button type="button" id="printRegisterBtn" class="print-btn">Print Shareholder Register</button>
+            <button type="button" id="printSummaryBtn" class="print-btn">Print Shareholding Summary</button>
+            <button type="button" id="printBeneficialBtn" class="print-btn">Print Beneficial Interest Register</button>
+        </div>
+
+        <h1>Share Securities Register</h1>
+
+        <fieldset class="company-details">
+            <legend>Company Details</legend>
+            <div class="company-details-grid">
+                <div class="form-group">
+                    <label for="companyName">Company Name:</label>
+                    <input type="text" id="companyName" name="companyName" oninput="updateShareholdingSummary()">
+                </div>
+                <div class="form-group">
+                    <label for="companyClassOfShares">Company Class of Shares:</label>
+                    <input type="text" id="companyClassOfShares" name="companyClassOfShares" value="Ordinary"
+                        oninput="updateShareholdingSummary()">
+                </div>
+                <div class="form-group company-details-address-group">
+                    <label for="companyAddressTextarea">Company Address:</label>
+                    <textarea id="companyAddressTextarea" name="companyAddressTextarea" class="companyAddressTextarea"
+                        rows="5"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="authorizedShares">Authorized Amount of Shares:</label>
+                    <input type="number" id="authorizedShares" name="authorizedShares" min="0"
+                        oninput="validateTotalIssuedShares()">
+                </div>
+                <div class="form-group">
+                    <label for="totalSharesIssued">Total Shares Issued:</label>
+                    <input type="number" id="totalSharesIssued" name="totalSharesIssued" min="0"
+                        oninput="validateTotalIssuedShares(); updateShareholdingSummary();">
+                </div>
+            </div>
+        </fieldset>
+
+        <div class="shareholder-records-container" id="shareholderRegisterContainer">
+            <h3>Shareholder Register</h3>
+            <div class="record-bulk-actions">
+                <button type="button" class="bulk-action-btn" id="expandAllBtn">Expand All</button>
+                <button type="button" class="bulk-action-btn" id="collapseAllBtn">Collapse All</button>
+            </div>
+            <div id="shareholderRegister"></div>
+            <div class="add-record-btn-container">
+                <button type="button" class="add-record-btn" id="addNaturalPersonButton">Add Natural Person
+                    Record</button>
+                <button type="button" class="add-record-btn" id="addJuristicPersonButton">Add Juristic Person
+                    Record</button>
+            </div>
+        </div>
+
+        <div class="shareholding-summary print-new-page">
+            <h3>Shareholding Summary</h3>
+            <table class="summary-table">
+                <thead>
+                    <tr>
+                        <th class="name-col-header">Shareholder's Name / Entity Name</th>
+                        <th class="class-of-shares-col">Class of Shares</th>
+                        <th class="percentage-col">Percentage (%)</th>
+                        <th class="shares-col">Total Shares Held</th>
+                    </tr>
+                </thead>
+                <tbody id="summaryTableBody"></tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" style="text-align: right; font-weight:bold;">TOTAL:</td>
+                        <td id="summaryTotalSharesHeld" class="shares-col" style="font-weight:bold;">0</td>
+                    </tr>
+                    <tr id="summaryDiscrepancyRow" style="display: none;">
+                        <td colspan="4" id="summaryDiscrepancyMessage" class="discrepancy-message"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="beneficial-interest-register print-new-page">
+            <h3>Beneficial Interest Register</h3>
+            <h4>Natural Person Beneficial Interest Register</h4>
+            <table class="summary-table">
+                <thead>
+                    <tr>
+                        <th>Shareholder's Name</th>
+                        <th>Date of Birth</th>
+                        <th>ID/Passport Number</th>
+                        <th>Country of ID/Passport Issue</th>
+                        <th>Address</th>
+                        <th>Email Address</th>
+                        <th>Interest %</th>
+                    </tr>
+                </thead>
+                <tbody id="naturalPersonBeneficialTableBody">
+                </tbody>
+            </table>
+            <h4 style="margin-top: 20px;">Juristic Person Beneficial Interest Register</h4>
+            <table class="summary-table">
+                <thead>
+                    <tr>
+                        <th>Entity Name</th>
+                        <th>Registration Number</th>
+                        <th>Address</th>
+                        <th>Email Address</th>
+                        <th>Interest %</th>
+                    </tr>
+                </thead>
+                <tbody id="juristicPersonBeneficialTableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <template id="transactionRowTemplate">
+        <div class="transaction-row">
+            <div class="form-group date-col">
+                <div class="date-input-group"> <input type="text" name="transactionDate"
+                        class="transactionDate visible-date-input" placeholder="DD/MM/YYYY"> <button type="button"
+                        class="date-picker-trigger" onclick="showDatePicker(this)"></button> <input type="date"
+                        class="hidden-date-input" onchange="updateVisibleDate(this)"> </div>
+            </div>
+            <div class="form-group new-cert-col"> <input type="text" name="transactionNewCertNo"
+                    class="transactionNewCertNo" placeholder="New Cert No."> </div>
+            <div class="form-group shares-col"> <input type="number" name="transactionShares" class="transactionShares"
+                    min="0" value="0" oninput="handleTransactionChange(this)"> </div>
+            <div class="form-group transaction-details-col"> <input type="text" name="transactionDetails"
+                    class="transactionDetails" placeholder="Transaction Details"> </div>
+            <div class="action-col"> <button type="button" class="delete-transaction-row-btn"
+                    onclick="deleteTransactionRow(this)">Del Row</button> </div>
+        </div>
+    </template>
+
+    <template id="shareholderRecordTemplate">
+        <div class="shareholder-record">
+            <div class="shareholder-record-header">
+                <span>Shareholder Details & Activity</span>
+                <div class="record-header-buttons">
+                    <button type="button" class="collapse-record-btn" onclick="toggleRecordCollapse(this)">▲
+                        Collapse</button>
+                    <button type="button" class="delete-record-btn" onclick="deleteRecord(this)">Delete Record</button>
+                </div>
+            </div>
+            <div class="record-body">
+                <div class="owner-details-grid">
+                    <div class="form-group-cell" data-cell="name"></div>
+                    <div class="form-group-cell" data-cell="dateOfEntry"></div>
+
+                    <div class="form-group-cell" data-cell="r2c1"></div>
+                    <div class="form-group-cell" data-cell="r2c2"></div>
+
+                    <div class="form-group-cell" data-cell="r3c1"></div>
+                    <div class="form-group-cell" data-cell="r3c2"></div>
+
+                    <div class="form-group-cell" data-cell="r4c1"></div>
+                    <div class="form-group-cell" data-cell="r4c2"></div>
+                </div>
+                <div class="shares-activity-wrapper">
+                    <div class="shares-activity-section">
+                        <h5>SHARES/SECURITIES ACQUIRED</h5>
+                        <div class="transaction-headers">
+                            <div class="date-col">Date</div>
+                            <div class="new-cert-col">New Cert. No.</div>
+                            <div class="shares-col">No of Shares</div>
+                            <div class="transaction-details-col">Transaction Details</div>
+                            <div class="action-col-spacer"></div>
+                        </div>
+                        <div class="acquired-transactions-container"></div>
+                        <button type="button" class="add-transaction-btn"
+                            onclick="addTransactionRow(this, 'acquired')">Add Acquired</button>
+                    </div>
+                    <div class="shares-activity-section">
+                        <h5>SHARES/SECURITIES TRANSFERRED</h5>
+                        <div class="transaction-headers">
+                            <div class="date-col">Date</div>
+                            <div class="new-cert-col">New Cert. No.</div>
+                            <div class="shares-col">No of Shares</div>
+                            <div class="transaction-details-col">Transaction Details</div>
+                            <div class="action-col-spacer"></div>
+                        </div>
+                        <div class="transferred-transactions-container"></div>
+                        <button type="button" class="add-transaction-btn"
+                            onclick="addTransactionRow(this, 'transferred')">Add Transferred</button>
+                    </div>
+                </div>
+                <div class="balance-section">
+                    <h5>Balance of Shares Held by this Owner/Entity</h5>
+                    <div class="input-row">
+                        <div class="form-group"> <label>No. of Shares:</label> <input type="number" name="balanceShares"
+                                class="balanceShares" min="0" value="0" readonly style="background-color: #e0e0e0;">
+                        </div>
+                        <div class="form-group"> <label>Certificate No(s) Held:</label> <input type="text"
+                                name="balanceCertNos" class="balanceCertNos"> </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        const addNaturalPersonButton = document.getElementById('addNaturalPersonButton');
+        const addJuristicPersonButton = document.getElementById('addJuristicPersonButton');
+        const shareholderRegisterDiv = document.getElementById('shareholderRegister');
+        const shareholderRecordTemplate = document.getElementById('shareholderRecordTemplate');
+        const transactionRowTemplate = document.getElementById('transactionRowTemplate');
+
+        const configFilenameInput = document.getElementById('configFilename');
+        const saveConfigButton = document.getElementById('saveConfigButton');
+        const showSaveInputButton = document.getElementById('showSaveInputButton');
+
+        // Print buttons
+        const printAllBtn = document.getElementById('printAllBtn');
+        const printRegisterBtn = document.getElementById('printRegisterBtn');
+        const printSummaryBtn = document.getElementById('printSummaryBtn');
+        const printBeneficialBtn = document.getElementById('printBeneficialBtn');
+
+        // Bulk action buttons
+        const expandAllBtn = document.getElementById('expandAllBtn');
+        const collapseAllBtn = document.getElementById('collapseAllBtn');
+
+        const summaryTableBody = document.getElementById('summaryTableBody');
+        const summaryTotalSharesHeldEl = document.getElementById('summaryTotalSharesHeld');
+        const summaryDiscrepancyRowEl = document.getElementById('summaryDiscrepancyRow');
+        const summaryDiscrepancyMessageEl = document.getElementById('summaryDiscrepancyMessage');
+        const naturalPersonBeneficialTableBody = document.getElementById('naturalPersonBeneficialTableBody');
+        const juristicPersonBeneficialTableBody = document.getElementById('juristicPersonBeneficialTableBody');
+
+
+        addNaturalPersonButton.addEventListener('click', () =>
+        {
+            addShareholderRecord('natural');
+            updateShareholdingSummary();
+        });
+
+        addJuristicPersonButton.addEventListener('click', () =>
+        {
+            addShareholderRecord('juristic');
+            updateShareholdingSummary();
+        });
+
+        function buildFieldHtml(type, name, inputClass, labelText, value = '', placeholder = '', oninput = null, rows = null)
+        {
+            let inputHtml = '';
+            const oninputAttr = oninput ? `oninput="${oninput}"` : '';
+            value = value || '';
+
+            switch (type)
+            {
+                case 'text':
+                case 'email':
+                case 'number':
+                    inputHtml = `<input type="${type}" name="${name}" class="${inputClass}" value="${value}" placeholder="${placeholder}" ${oninputAttr}>`;
+                    break;
+                case 'textarea':
+                    const rowsAttr = rows ? `rows="${rows}"` : 'rows="3"';
+                    inputHtml = `<textarea name="${name}" class="${inputClass}" ${rowsAttr} placeholder="${placeholder}" ${oninputAttr}>${value}</textarea>`;
+                    break;
+                case 'date':
+                    const dateValueYMD = value ? value.split('/').reverse().join('-') : '';
+                    inputHtml = `
+                        <div class="date-input-group">
+                            <input type="text" name="${name}" class="${inputClass} visible-date-input" placeholder="DD/MM/YYYY" value="${value}">
+                            <button type="button" class="date-picker-trigger" onclick="showDatePicker(this)"></button>
+                            <input type="date" class="hidden-date-input" onchange="updateVisibleDate(this)" value="${dateValueYMD}">
+                        </div>`;
+                    break;
+            }
+            return `<div class="form-group"><label>${labelText}</label>${inputHtml}</div>`;
+        }
+
+        function buildIdPassportGroupHtml(idNumberVal = '', idCountryVal = '')
+        {
+            return `
+                <div class="form-group">
+                    <div class="id-country-group">
+                        <div class="form-group">
+                            <label>ID/Passport No.:</label>
+                            <input type="text" name="idNumber" class="idNumber" placeholder="ID/Passport No." value="${idNumberVal}">
+                        </div>
+                        <div class="form-group">
+                            <label>Country of ID/Passport Issue:</label>
+                            <input type="text" name="idCountry" class="idCountry" placeholder="Country" value="${idCountryVal}">
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        function buildRegistrationGroupHtml(regNumberVal = '', regCountryVal = '')
+        {
+            return `
+                <div class="form-group">
+                    <div class="registration-group">
+                        <div class="form-group">
+                            <label>Registration number of the entity:</label>
+                            <input type="text" name="registrationNumber" class="registrationNumber" placeholder="Registration No." value="${regNumberVal}">
+                        </div>
+                        <div class="form-group">
+                            <label>Country of Registration Issue:</label>
+                            <input type="text" name="registrationCountry" class="registrationCountryInput" placeholder="Country" value="${regCountryVal}">
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+
+        function addShareholderRecord(recordType, data = null)
+        {
+            const templateContent = shareholderRecordTemplate.content.cloneNode(true);
+            const newRecordDiv = templateContent.querySelector('.shareholder-record');
+            newRecordDiv.dataset.recordType = recordType;
+
+            const ownerDetails = data ? data.ownerDetails : {};
+
+            const cells = {
+                name: newRecordDiv.querySelector('[data-cell="name"]'),
+                dateOfEntry: newRecordDiv.querySelector('[data-cell="dateOfEntry"]'),
+                r2c1: newRecordDiv.querySelector('[data-cell="r2c1"]'),
+                r2c2: newRecordDiv.querySelector('[data-cell="r2c2"]'),
+                r3c1: newRecordDiv.querySelector('[data-cell="r3c1"]'),
+                r3c2: newRecordDiv.querySelector('[data-cell="r3c2"]'),
+                r4c1: newRecordDiv.querySelector('[data-cell="r4c1"]'),
+                r4c2: newRecordDiv.querySelector('[data-cell="r4c2"]'),
+            };
+
+            Object.values(cells).forEach(cell => cell.innerHTML = '');
+
+            const nameLabel = recordType === 'natural' ? 'Name:' : 'Name of entity:';
+            // MODIFIED: Added updateCollapsedHeader(this) to the oninput event
+            cells.name.innerHTML = buildFieldHtml('text', 'ownerName', 'ownerName', nameLabel, ownerDetails.name, '', 'updateShareholdingSummary(); updateCollapsedHeader(this);');
+
+            const entryDateLabel = recordType === 'natural' ? 'Date of Entry as Member:' : 'Date of Entry as a Beneficial Owner:';
+            cells.dateOfEntry.innerHTML = buildFieldHtml('date', 'dateOfEntry', 'dateOfEntry', entryDateLabel, ownerDetails.dateOfEntry);
+
+            const classSharesLabel = recordType === 'natural' ? 'Class of Shares (for this member):' : 'Class of Shares (for this beneficial owner):';
+            const ceasingDateLabel = recordType === 'natural' ? 'Date of Ceasing as Member:' : 'Date of Ceasing as a Beneficial Owner:';
+
+            if (recordType === 'natural')
+            {
+                cells.r2c1.innerHTML = buildFieldHtml('textarea', 'ownerAddress', 'ownerAddress', 'Address:', ownerDetails.address, '', 'updateShareholdingSummary()', 5);
+                cells.r2c2.innerHTML = buildFieldHtml('date', 'dateOfBirth', 'dateOfBirth', 'Date of Birth:', ownerDetails.dateOfBirth, 'updateShareholdingSummary()');
+                cells.r3c1.innerHTML = buildFieldHtml('email', 'ownerEmail', 'ownerEmail', 'Email Address:', ownerDetails.email, 'updateShareholdingSummary()');
+                cells.r3c2.innerHTML = buildIdPassportGroupHtml(ownerDetails.idNumber, ownerDetails.idCountry);
+                cells.r4c1.innerHTML = buildFieldHtml('text', 'classOfShares', 'classOfShares', classSharesLabel, ownerDetails.classOfShares, '', 'updateShareholdingSummary()');
+                cells.r4c2.innerHTML = buildFieldHtml('date', 'dateOfCeasing', 'dateOfCeasing', ceasingDateLabel, ownerDetails.dateOfCeasing);
+            } else if (recordType === 'juristic')
+            {
+                cells.r2c1.innerHTML = buildRegistrationGroupHtml(ownerDetails.registrationNumber, ownerDetails.registrationCountry);
+                cells.r2c2.innerHTML = buildFieldHtml('email', 'ownerEmail', 'ownerEmail', 'Email Address:', ownerDetails.email, 'updateShareholdingSummary()');
+                cells.r3c1.innerHTML = buildFieldHtml('textarea', 'ownerAddress', 'ownerAddress', 'Address:', ownerDetails.address, '', 'updateShareholdingSummary()', 5);
+                let r3c2_content = '';
+                r3c2_content += buildFieldHtml('text', 'classOfShares', 'classOfShares', classSharesLabel, ownerDetails.classOfShares, '', 'updateShareholdingSummary()');
+                const dateOfCeasingHtml = buildFieldHtml('date', 'dateOfCeasing', 'dateOfCeasing', ceasingDateLabel, ownerDetails.dateOfCeasing);
+                r3c2_content += dateOfCeasingHtml.replace('<div class="form-group">', '<div class="form-group" style="margin-top: 10px;">');
+                cells.r3c2.innerHTML = r3c2_content;
+                cells.r4c1.innerHTML = '';
+                cells.r4c2.innerHTML = '';
+            }
+
+            newRecordDiv.querySelectorAll('.idNumber, .idCountry, .registrationNumber, .registrationCountryInput').forEach(el =>
+            {
+                el.addEventListener('input', updateShareholdingSummary);
+            });
+
+
+            shareholderRegisterDiv.appendChild(newRecordDiv);
+
+            if (data)
+            {
+                if (data.acquiredTransactions)
+                {
+                    data.acquiredTransactions.forEach(txData =>
+                    {
+                        addTransactionRow(newRecordDiv.querySelector('.add-transaction-btn[onclick*="acquired"]'), 'acquired', txData);
+                    });
+                }
+                if (data.transferredTransactions)
+                {
+                    data.transferredTransactions.forEach(txData =>
+                    {
+                        addTransactionRow(newRecordDiv.querySelector('.add-transaction-btn[onclick*="transferred"]'), 'transferred', txData);
+                    });
+                }
+                newRecordDiv.querySelector('.balanceShares').value = data.balance.shares || 0;
+                newRecordDiv.querySelector('.balanceCertNos').value = data.balance.certNos || '';
+            } else
+            {
+                calculateShareholderBalance(newRecordDiv);
+            }
+            return newRecordDiv;
+        }
+
+        // NEW: Function to update header text for a collapsed record if the name changes
+        function updateCollapsedHeader(inputElement)
+        {
+            const recordDiv = inputElement.closest('.shareholder-record');
+            if (recordDiv && recordDiv.classList.contains('collapsed'))
+            {
+                const headerSpan = recordDiv.querySelector('.shareholder-record-header > span');
+                const ownerName = inputElement.value || 'Unnamed Record';
+                headerSpan.textContent = `Shareholder Details & Activity - ${ownerName}`;
+            }
+        }
+
+        function toggleRecordCollapse(buttonElement)
+        {
+            const recordDiv = buttonElement.closest('.shareholder-record');
+            if (recordDiv)
+            {
+                const isCollapsed = recordDiv.classList.contains('collapsed');
+                setRecordCollapseState(recordDiv, !isCollapsed);
+            }
+        }
+
+        function setRecordCollapseState(recordDiv, shouldCollapse)
+        {
+            const recordBody = recordDiv.querySelector('.record-body');
+            const collapseBtn = recordDiv.querySelector('.collapse-record-btn');
+            const headerSpan = recordDiv.querySelector('.shareholder-record-header > span');
+
+            if (shouldCollapse)
+            {
+                recordBody.style.display = 'none';
+                collapseBtn.textContent = '▼ Expand';
+                recordDiv.classList.add('collapsed');
+                const ownerName = recordDiv.querySelector('.ownerName')?.value || 'Unnamed Record';
+                headerSpan.textContent = `Shareholder Details & Activity - ${ownerName}`;
+            } else
+            {
+                recordBody.style.display = 'block';
+                collapseBtn.textContent = '▲ Collapse';
+                recordDiv.classList.remove('collapsed');
+                headerSpan.textContent = 'Shareholder Details & Activity';
+            }
+        }
+
+        function deleteRecord(buttonElement)
+        {
+            if (confirm('Are you sure you want to delete this entire shareholder record?'))
+            {
+                const recordToDelete = buttonElement.closest('.shareholder-record');
+                if (recordToDelete)
+                {
+                    recordToDelete.remove();
+                    updateShareholdingSummary();
+                }
+            }
+        }
+
+        function addTransactionRow(buttonElementOrDiv, type, data = null)
+        {
+            const shareholderRecordDiv = (buttonElementOrDiv.classList.contains('shareholder-record'))
+                ? buttonElementOrDiv
+                : buttonElementOrDiv.closest('.shareholder-record');
+            const containerClass = type === 'acquired' ? '.acquired-transactions-container' : '.transferred-transactions-container';
+            const transactionRowsContainer = shareholderRecordDiv.querySelector(containerClass);
+            const newTransactionRowFragment = transactionRowTemplate.content.cloneNode(true);
+            const newRowDiv = newTransactionRowFragment.querySelector('.transaction-row');
+            transactionRowsContainer.appendChild(newRowDiv);
+
+            if (data)
+            {
+                setFormattedDate(newRowDiv.querySelector('.transactionDate.visible-date-input'), data.date);
+                newRowDiv.querySelector('.transactionNewCertNo').value = data.newCertNo || '';
+                newRowDiv.querySelector('.transactionShares').value = data.shares || 0;
+                newRowDiv.querySelector('.transactionDetails').value = data.details || '';
+            }
+            calculateShareholderBalance(shareholderRecordDiv);
+            return newRowDiv;
+        }
+
+        function deleteTransactionRow(buttonElement)
+        {
+            const rowToDelete = buttonElement.closest('.transaction-row');
+            const shareholderRecordDiv = buttonElement.closest('.shareholder-record');
+            if (rowToDelete)
+            {
+                rowToDelete.remove();
+                if (shareholderRecordDiv)
+                {
+                    calculateShareholderBalance(shareholderRecordDiv);
+                }
+            }
+        }
+        function handleTransactionChange(inputElement)
+        {
+            const shareholderRecordDiv = inputElement.closest('.shareholder-record');
+            if (shareholderRecordDiv)
+            {
+                calculateShareholderBalance(shareholderRecordDiv);
+            }
+        }
+        function calculateShareholderBalance(shareholderRecordDiv)
+        {
+            if (!shareholderRecordDiv) return;
+            let totalAcquired = 0;
+            shareholderRecordDiv.querySelectorAll('.acquired-transactions-container .transactionShares').forEach(input =>
+            {
+                totalAcquired += parseInt(input.value) || 0;
+            });
+            let totalTransferred = 0;
+            shareholderRecordDiv.querySelectorAll('.transferred-transactions-container .transactionShares').forEach(input =>
+            {
+                totalTransferred += parseInt(input.value) || 0;
+            });
+            const balanceSharesInput = shareholderRecordDiv.querySelector('.balanceShares');
+            const newBalance = Math.max(0, totalAcquired - totalTransferred);
+            const oldBalanceString = balanceSharesInput.value;
+            const newBalanceString = String(newBalance);
+            if (oldBalanceString !== newBalanceString)
+            {
+                balanceSharesInput.value = newBalanceString;
+                updateShareholdingSummary();
+            }
+        }
+        function validateTotalIssuedShares()
+        {
+            const totalIssuedInput = document.getElementById('totalSharesIssued');
+            const authorizedSharesInput = document.getElementById('authorizedShares');
+            const totalIssued = parseInt(totalIssuedInput.value) || 0;
+            const authorized = parseInt(authorizedSharesInput.value) || 0;
+            if (authorized > 0 && totalIssued > authorized)
+            {
+                totalIssuedInput.style.borderColor = 'red';
+                totalIssuedInput.style.color = 'red';
+            } else
+            {
+                totalIssuedInput.style.borderColor = '#ddd';
+                totalIssuedInput.style.color = 'inherit';
+            }
+        }
+        function showDatePicker(buttonElement)
+        {
+            const hiddenDateInput = buttonElement.nextElementSibling;
+            try { hiddenDateInput.showPicker(); } catch (e) { hiddenDateInput.focus(); }
+        }
+        function updateVisibleDate(hiddenDateInput)
+        {
+            const visibleDateInput = hiddenDateInput.parentElement.querySelector('.visible-date-input');
+            const yyyymmdd = hiddenDateInput.value;
+            if (yyyymmdd)
+            {
+                const parts = yyyymmdd.split('-');
+                visibleDateInput.value = `${parts[2]}/${parts[1]}/${parts[0]}`;
+            } else { visibleDateInput.value = ''; }
+            updateShareholdingSummary(); // Update tables when date changes
+        }
+        function getFormattedDate(visibleDateInput) { return visibleDateInput ? visibleDateInput.value : ''; }
+        function setFormattedDate(visibleDateInput, ddMmYyyy)
+        {
+            if (visibleDateInput && ddMmYyyy)
+            {
+                visibleDateInput.value = ddMmYyyy;
+                const hiddenDateInput = visibleDateInput.parentElement.querySelector('.hidden-date-input');
+                if (hiddenDateInput)
+                {
+                    const parts = ddMmYyyy.split('/');
+                    if (parts.length === 3) hiddenDateInput.value = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                }
+            } else if (visibleDateInput)
+            {
+                visibleDateInput.value = '';
+                const hiddenDateInput = visibleDateInput.parentElement.querySelector('.hidden-date-input');
+                if (hiddenDateInput) hiddenDateInput.value = '';
+            }
+        }
+
+        function formatAddress(addressValue)
+        {
+            if (!addressValue) return '';
+            return addressValue.split('\n').filter(line => line.trim() !== '').join(', ');
+        }
+
+        function showFilenameInput()
+        {
+            configFilenameInput.style.display = 'inline-block';
+            saveConfigButton.style.display = 'inline-block';
+            showSaveInputButton.style.display = 'none';
+        }
+
+        function saveConfig()
+        {
+            const data = { companyDetails: {}, shareholders: [] };
+            data.companyDetails.name = document.getElementById('companyName').value;
+            data.companyDetails.classOfShares = document.getElementById('companyClassOfShares').value;
+            data.companyDetails.address = document.getElementById('companyAddressTextarea').value;
+            data.companyDetails.authorizedShares = document.getElementById('authorizedShares').value;
+            data.companyDetails.totalSharesIssued = document.getElementById('totalSharesIssued').value;
+
+            document.querySelectorAll('#shareholderRegister .shareholder-record').forEach(recordDiv =>
+            {
+                const recordType = recordDiv.dataset.recordType;
+                const shareholder = {
+                    ownerDetails: { recordType: recordType },
+                    acquiredTransactions: [],
+                    transferredTransactions: [],
+                    balance: {}
+                };
+
+                shareholder.ownerDetails.name = recordDiv.querySelector('.ownerName')?.value || '';
+                shareholder.ownerDetails.address = recordDiv.querySelector('.ownerAddress')?.value || '';
+                shareholder.ownerDetails.email = recordDiv.querySelector('.ownerEmail')?.value || '';
+                shareholder.ownerDetails.dateOfEntry = getFormattedDate(recordDiv.querySelector('.dateOfEntry.visible-date-input'));
+                shareholder.ownerDetails.dateOfCeasing = getFormattedDate(recordDiv.querySelector('.dateOfCeasing.visible-date-input'));
+                shareholder.ownerDetails.classOfShares = recordDiv.querySelector('.classOfShares')?.value || '';
+
+                if (recordType === 'natural')
+                {
+                    shareholder.ownerDetails.dateOfBirth = getFormattedDate(recordDiv.querySelector('.dateOfBirth.visible-date-input'));
+                    shareholder.ownerDetails.idNumber = recordDiv.querySelector('.idNumber')?.value || '';
+                    shareholder.ownerDetails.idCountry = recordDiv.querySelector('.idCountry')?.value || '';
+                } else if (recordType === 'juristic')
+                {
+                    shareholder.ownerDetails.registrationNumber = recordDiv.querySelector('.registrationNumber')?.value || '';
+                    shareholder.ownerDetails.registrationCountry = recordDiv.querySelector('.registrationCountryInput')?.value || '';
+                }
+
+                recordDiv.querySelectorAll('.acquired-transactions-container .transaction-row').forEach(row =>
+                {
+                    shareholder.acquiredTransactions.push({
+                        date: getFormattedDate(row.querySelector('.transactionDate.visible-date-input')),
+                        newCertNo: row.querySelector('.transactionNewCertNo').value,
+                        shares: row.querySelector('.transactionShares').value,
+                        details: row.querySelector('.transactionDetails').value
+                    });
+                });
+                recordDiv.querySelectorAll('.transferred-transactions-container .transaction-row').forEach(row =>
+                {
+                    shareholder.transferredTransactions.push({
+                        date: getFormattedDate(row.querySelector('.transactionDate.visible-date-input')),
+                        newCertNo: row.querySelector('.transactionNewCertNo').value,
+                        shares: row.querySelector('.transactionShares').value,
+                        details: row.querySelector('.transactionDetails').value
+                    });
+                });
+                shareholder.balance.shares = recordDiv.querySelector('.balanceShares').value;
+                shareholder.balance.certNos = recordDiv.querySelector('.balanceCertNos').value;
+                data.shareholders.push(shareholder);
+            });
+
+            const filename = configFilenameInput.value || 'share_register_config.json';
+            const jsonString = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = filename;
+            document.body.appendChild(a); a.click();
+            document.body.removeChild(a); URL.revokeObjectURL(url);
+            configFilenameInput.style.display = 'none'; configFilenameInput.value = '';
+            saveConfigButton.style.display = 'none'; showSaveInputButton.style.display = 'inline-block';
+        }
+        function loadConfig(event)
+        {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (e)
+            {
+                try
+                {
+                    const data = JSON.parse(e.target.result);
+                    document.getElementById('companyName').value = '';
+                    document.getElementById('companyClassOfShares').value = 'Ordinary';
+                    document.getElementById('companyAddressTextarea').value = '';
+                    document.getElementById('authorizedShares').value = '';
+                    document.getElementById('totalSharesIssued').value = '';
+                    shareholderRegisterDiv.innerHTML = '';
+
+                    if (data.companyDetails)
+                    {
+                        document.getElementById('companyName').value = data.companyDetails.name || '';
+                        document.getElementById('companyClassOfShares').value = data.companyDetails.classOfShares || 'Ordinary';
+                        document.getElementById('companyAddressTextarea').value = data.companyDetails.address || '';
+                        document.getElementById('authorizedShares').value = data.companyDetails.authorizedShares || '';
+                        document.getElementById('totalSharesIssued').value = data.companyDetails.totalSharesIssued || '';
+                    }
+                    if (data.shareholders && Array.isArray(data.shareholders))
+                    {
+                        data.shareholders.forEach(shareholderData =>
+                        {
+                            const recordType = shareholderData.ownerDetails.recordType || 'natural'; // default to natural for old files
+                            addShareholderRecord(recordType, shareholderData);
+                        });
+                    }
+                    validateTotalIssuedShares();
+                    updateShareholdingSummary();
+                    alert('Configuration loaded successfully!');
+                } catch (error)
+                {
+                    console.error("Error loading or parsing config file:", error);
+                    alert('Error loading configuration file. Make sure it is a valid JSON file.');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = null;
+        }
+
+        function updateShareholdingSummary()
+        {
+            summaryTableBody.innerHTML = '';
+            naturalPersonBeneficialTableBody.innerHTML = '';
+            juristicPersonBeneficialTableBody.innerHTML = '';
+
+            let grandTotalSharesHeld = 0;
+            const companyTotalIssuedShares = parseInt(document.getElementById('totalSharesIssued').value) || 0;
+            const defaultCompanyClassOfShares = document.getElementById('companyClassOfShares').value || 'N/A';
+
+            document.querySelectorAll('#shareholderRegister .shareholder-record').forEach(recordDiv =>
+            {
+                const recordType = recordDiv.dataset.recordType;
+                const ownerName = recordDiv.querySelector('.ownerName')?.value || 'N/A';
+                const classOfShares = recordDiv.querySelector('.classOfShares')?.value || defaultCompanyClassOfShares;
+                const balanceShares = parseInt(recordDiv.querySelector('.balanceShares')?.value) || 0;
+
+                grandTotalSharesHeld += balanceShares;
+                let percentage = 0;
+                if (companyTotalIssuedShares > 0 && balanceShares > 0)
+                {
+                    percentage = (balanceShares / companyTotalIssuedShares) * 100;
+                }
+
+                const summaryRow = summaryTableBody.insertRow();
+                summaryRow.insertCell().textContent = ownerName;
+                const classCell = summaryRow.insertCell();
+                classCell.textContent = classOfShares;
+                classCell.classList.add('class-of-shares-col');
+                const percentageCell = summaryRow.insertCell();
+                percentageCell.textContent = percentage.toFixed(2) + '%';
+                percentageCell.classList.add('percentage-col');
+                const sharesCell = summaryRow.insertCell();
+                sharesCell.textContent = balanceShares;
+                sharesCell.classList.add('shares-col');
+
+                if (recordType === 'natural')
+                {
+                    const dob = getFormattedDate(recordDiv.querySelector('.dateOfBirth.visible-date-input')) || 'N/A';
+                    const idNumber = recordDiv.querySelector('.idNumber')?.value || 'N/A';
+                    const idCountry = recordDiv.querySelector('.idCountry')?.value || 'N/A';
+                    const address = formatAddress(recordDiv.querySelector('.ownerAddress')?.value);
+                    const email = recordDiv.querySelector('.ownerEmail')?.value || 'N/A';
+
+                    const birRow = naturalPersonBeneficialTableBody.insertRow();
+                    birRow.insertCell().textContent = ownerName;
+                    birRow.insertCell().textContent = dob;
+                    birRow.insertCell().textContent = idNumber;
+                    birRow.insertCell().textContent = idCountry;
+                    birRow.insertCell().textContent = address;
+                    birRow.insertCell().textContent = email;
+                    const interestCell = birRow.insertCell();
+                    interestCell.textContent = percentage.toFixed(2) + '%';
+                    interestCell.style.textAlign = 'center';
+
+                } else if (recordType === 'juristic')
+                {
+                    const regNumber = recordDiv.querySelector('.registrationNumber')?.value || 'N/A';
+                    const address = formatAddress(recordDiv.querySelector('.ownerAddress')?.value);
+                    const email = recordDiv.querySelector('.ownerEmail')?.value || 'N/A';
+
+                    const birRow = juristicPersonBeneficialTableBody.insertRow();
+                    birRow.insertCell().textContent = ownerName;
+                    birRow.insertCell().textContent = regNumber;
+                    birRow.insertCell().textContent = address;
+                    birRow.insertCell().textContent = email;
+                    const interestCell = birRow.insertCell();
+                    interestCell.textContent = percentage.toFixed(2) + '%';
+                    interestCell.style.textAlign = 'center';
+                }
+            });
+
+            summaryTotalSharesHeldEl.textContent = grandTotalSharesHeld;
+
+            const unaccountedShares = companyTotalIssuedShares - grandTotalSharesHeld;
+            if (unaccountedShares !== 0)
+            {
+                summaryDiscrepancyMessageEl.textContent = unaccountedShares > 0
+                    ? `${unaccountedShares} shares not accounted for in summary.`
+                    : `${Math.abs(unaccountedShares)} shares over-allocated in summary.`;
+                summaryDiscrepancyRowEl.style.display = 'table-row';
+            } else
+            {
+                summaryDiscrepancyRowEl.style.display = 'none';
+            }
+        }
+
+        collapseAllBtn.addEventListener('click', () =>
+        {
+            document.querySelectorAll('#shareholderRegister .shareholder-record').forEach(record =>
+            {
+                setRecordCollapseState(record, true);
+            });
+        });
+
+        expandAllBtn.addEventListener('click', () =>
+        {
+            document.querySelectorAll('#shareholderRegister .shareholder-record').forEach(record =>
+            {
+                setRecordCollapseState(record, false);
+            });
+        });
+
+        printAllBtn.addEventListener('click', () =>
+        {
+            const shareholderRecords = shareholderRegisterDiv.querySelectorAll('.shareholder-record');
+            shareholderRecords.forEach((record, index) =>
+            {
+                const isCollapsed = record.classList.contains('collapsed');
+                if (index > 0 && !isCollapsed)
+                {
+                    record.classList.add('print-new-page');
+                } else
+                {
+                    record.classList.remove('print-new-page');
+                }
+            });
+            window.print();
+            setTimeout(() =>
+            {
+                shareholderRecords.forEach(record => record.classList.remove('print-new-page'));
+            }, 2000);
+        });
+
+        function prepareAndPrint(printClass)
+        {
+            document.body.classList.add(printClass);
+            window.print();
+            setTimeout(() =>
+            {
+                document.body.classList.remove(printClass);
+            }, 1000);
+        }
+
+        printRegisterBtn.addEventListener('click', () =>
+        {
+            prepareAndPrint('printing-register');
+        });
+
+        printSummaryBtn.addEventListener('click', () =>
+        {
+            prepareAndPrint('printing-summary');
+        });
+
+        printBeneficialBtn.addEventListener('click', () =>
+        {
+            prepareAndPrint('printing-beneficial');
+        });
+
+
+        // Initial calls
+        validateTotalIssuedShares();
+        updateShareholdingSummary();
+    </script>
+</body>
+
+</html>
