@@ -1,0 +1,755 @@
+/* --- START OF FILE app.css --- */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 20px;
+    background-color: #f4f4f4;
+    font-size: 14px;
+}
+
+.container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 1350px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+h2 {
+    color: #333;
+    text-align: center;
+    margin-top: 5px;
+    margin-bottom: 20px;
+}
+
+/* --- Tab Styles --- */
+.tab-nav {
+    border-bottom: 2px solid #dee2e6;
+    margin-bottom: 20px;
+}
+
+.tab-btn {
+    background-color: transparent;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 1.1em;
+    color: #007bff;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+}
+
+.tab-btn:hover {
+    background-color: #f1f1f1;
+}
+
+.tab-btn.active {
+    font-weight: bold;
+    color: #495057;
+    border-color: #dee2e6 #dee2e6 #fff;
+    border-style: solid;
+    border-width: 2px;
+    border-top-left-radius: 0.25rem;
+    border-top-right-radius: 0.25rem;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+
+.config-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 10px;
+    background-color: #e9ecef;
+    border-radius: 5px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.config-controls button,
+.config-controls input[type="text"] {
+    padding: 8px 12px;
+    font-size: 0.9em;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 5px;
+}
+
+.config-controls button {
+    background-color: #007bff;
+    color: white;
+}
+
+.config-controls button.print-btn {
+    background-color: #6c757d;
+}
+
+.config-controls button.print-btn:hover {
+    background-color: #5a6268;
+}
+
+.config-controls button:hover {
+    background-color: #0056b3;
+}
+
+.config-controls input[type="text"] {
+    flex-grow: 1;
+}
+
+#loadConfigFile {
+    display: none;
+}
+
+.company-details {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.company-details legend {
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-bottom: 10px;
+    color: #555;
+}
+
+.company-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr 1fr;
+    gap: 15px 20px;
+}
+
+.company-details-grid .form-group {
+    margin-bottom: 0;
+}
+
+.company-details-address-group {
+    grid-row: 1 / span 2;
+    grid-column: 2 / 3;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 5px;
+}
+
+.form-group-cell:empty {
+    padding: 0;
+    margin: 0;
+}
+
+
+.form-group label {
+    margin-bottom: 3px;
+    font-weight: 500;
+    color: #555;
+    font-size: 0.9em;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group input[type="email"],
+.form-group input[type="date"],
+.form-group select,
+.form-group textarea {
+    padding: 6px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 100%;
+    font-size: 0.9em;
+    font-family: 'Roboto', sans-serif;
+}
+
+.name-group {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.name-group .form-group {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.date-input-group {
+    position: relative;
+    display: flex;
+}
+
+.date-input-group input[type="text"] {
+    flex-grow: 1;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    min-width: 0;
+    /* FIX: This allows the input to shrink and prevents the button from wrapping */
+}
+
+.date-picker-trigger {
+    padding: 6px 8px;
+    border: 1px solid #ddd;
+    border-left: none;
+    background-color: #eee;
+    cursor: pointer;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    font-size: 0.9em;
+    line-height: 1.2;
+}
+
+.date-picker-trigger:hover {
+    background-color: #ddd;
+}
+
+.hidden-date-input {
+    display: none;
+}
+
+.form-group textarea.ownerAddress,
+.form-group textarea.companyAddressTextarea {
+    min-height: auto;
+    resize: none;
+    overflow: hidden;
+}
+
+#beneficialTab>h3,
+.shareholder-records-container>h3 {
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    color: #555;
+    text-align: center;
+}
+
+.shareholder-record {
+    background-color: #e6ffe6;
+    border: 1px solid #5cb85c;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    position: relative;
+}
+
+.shareholder-record-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #3c763d;
+    border-bottom: 1px solid #a3d0a3;
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+.shareholder-record-header>span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-right: 15px;
+}
+
+
+.record-header-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.delete-record-btn {
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+}
+
+.collapse-record-btn {
+    background-color: #f0ad4e;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+}
+
+.collapse-record-btn:hover {
+    background-color: #ec9b3b;
+}
+
+.record-bulk-actions {
+    text-align: center;
+    margin: 10px 0 20px 0;
+}
+
+.bulk-action-btn {
+    background-color: #6c757d;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    margin: 5px;
+}
+
+.bulk-action-btn:hover {
+    background-color: #5a6268;
+}
+
+.add-record-btn-container {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.add-record-btn {
+    background-color: #5cb85c;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    margin: 5px;
+}
+
+
+.owner-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 20px;
+    margin-bottom: 15px;
+}
+
+.owner-details-grid .form-group-cell .form-group {
+    margin-bottom: 0;
+}
+
+
+.id-country-group,
+.registration-group {
+    display: flex;
+    gap: 10px;
+}
+
+.id-country-group>.form-group,
+.registration-group>.form-group {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+
+.shares-activity-wrapper {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 15px;
+}
+
+.shares-activity-section {
+    flex: 1;
+    padding: 10px;
+    border: 1px dashed #a3d0a3;
+    border-radius: 4px;
+}
+
+.shares-activity-section h5 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #4CAF50;
+    text-align: center;
+    font-size: 1em;
+    border-bottom: 1px solid #c3e6cb;
+    padding-bottom: 5px;
+}
+
+.transaction-headers {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 0.8em;
+    color: #333;
+    padding: 0 5px;
+    align-items: center;
+}
+
+.transaction-headers>div {
+    flex: 1;
+    text-align: center;
+    padding: 4px 2px;
+}
+
+.transaction-headers>div.date-col,
+.transaction-row .form-group.date-col {
+    flex-basis: 120px;
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+
+.transaction-headers>div.new-cert-col,
+.transaction-row .form-group.new-cert-col {
+    flex: 1;
+}
+
+.transaction-headers>div.shares-col,
+.transaction-row .form-group.shares-col {
+    flex-basis: 70px;
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+
+.transaction-headers>div.transaction-details-col,
+.transaction-row .form-group.transaction-details-col {
+    flex: 3.2;
+}
+
+.transaction-headers>div.action-col-spacer,
+.transaction-row .action-col {
+    flex-basis: 70px;
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+
+.transaction-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    margin-bottom: 8px;
+    padding: 5px;
+}
+
+.transaction-row .form-group {
+    margin-bottom: 0;
+}
+
+.transaction-row .form-group label {
+    display: none;
+}
+
+.delete-transaction-row-btn {
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    padding: 6px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8em;
+    width: 100%;
+    height: 30px;
+}
+
+.add-transaction-btn {
+    background-color: #f0ad4e;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85em;
+    display: block;
+    margin: 10px auto 0 auto;
+}
+
+.balance-section {
+    background-color: #d9edf7;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #bce8f1;
+}
+
+.balance-section h5 {
+    margin-top: 0;
+    margin-bottom: 8px;
+    color: #31708f;
+}
+
+.balance-section .input-row {
+    display: flex;
+    gap: 10px;
+}
+
+.balance-section .input-row>.form-group {
+    flex: 1;
+}
+
+.shareholding-summary {
+    margin-top: 30px;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.shareholding-summary h3 {
+    text-align: center;
+    color: #333;
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.summary-table {
+    border-collapse: collapse;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+}
+
+.summary-table th,
+.summary-table td {
+    border: 1px solid #ddd;
+    padding: 8px 10px;
+    text-align: left;
+}
+
+.summary-table th {
+    background-color: #add8e6;
+    color: #31708f;
+    font-weight: bold;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.summary-table th.name-col-header {
+    text-align: left;
+}
+
+.summary-table td.class-of-shares-col,
+.summary-table td.percentage-col {
+    text-align: center;
+}
+
+.summary-table td.shares-col {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.summary-table tfoot td {
+    font-weight: bold;
+    background-color: #e9ecef;
+}
+
+.summary-table tfoot td.discrepancy-message {
+    text-align: center;
+    color: red;
+    font-style: italic;
+}
+
+/* --- Styles from Beneficial Interest Tab --- */
+.info-record {
+    background-color: #e6ffe6;
+    border: 1px solid #5cb85c;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    position: relative;
+}
+
+.info-record-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #3c763d;
+    border-bottom: 1px solid #a3d0a3;
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.collapse-beneficial-btn {
+    background-color: #f0ad4e;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8em;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 15px 25px;
+}
+
+#beneficialTab .form-group textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+#noDataMessage {
+    text-align: center;
+    font-size: 1.2em;
+    color: #888;
+    padding: 50px;
+}
+
+.print-new-page {
+    page-break-before: always !important;
+}
+
+@page {
+    size: A4 landscape;
+    margin: 0.5cm;
+}
+
+@media print {
+    body {
+        font-size: 9pt;
+        margin: 0;
+        background-color: #fff;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* Hide all interactive elements */
+    .config-controls,
+    .add-record-btn-container,
+    .delete-record-btn,
+    .add-transaction-btn,
+    .date-picker-trigger,
+    .delete-transaction-row-btn,
+    .collapse-record-btn,
+    .record-bulk-actions,
+    .tab-nav,
+    .collapse-beneficial-btn {
+        display: none !important;
+    }
+
+    .container {
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0;
+        max-width: 100%;
+    }
+
+    /* Hide all tab content by default */
+    .tab-content {
+        display: none !important;
+    }
+
+    /* Show content based on body class */
+    body.printing-register #registerTab,
+    body.printing-all #registerTab {
+        display: block !important;
+    }
+
+    body.printing-summary .shareholding-summary,
+    body.printing-all .shareholding-summary {
+        display: block !important;
+    }
+
+    body.printing-beneficial #beneficialTab {
+        display: block !important;
+    }
+
+    /* Hide unwanted sections for specific prints */
+    body.printing-register .shareholding-summary,
+    body.printing-beneficial .shareholding-summary,
+    body.printing-beneficial .company-details {
+        display: none !important;
+    }
+
+    body.printing-summary #registerTab,
+    body.printing-summary #beneficialTab {
+        display: none !important;
+    }
+
+    body.printing-summary .shareholding-summary {
+        page-break-before: auto !important;
+    }
+
+    /* General Print Styling */
+    .company-details,
+    .shareholder-record,
+    .info-record,
+    .shareholding-summary {
+        page-break-inside: avoid !important;
+    }
+
+    .shareholder-records-container>h3 {
+        page-break-after: avoid !important;
+    }
+
+    .shareholder-record,
+    .info-record {
+        box-shadow: none !important;
+        margin-bottom: 10px;
+    }
+
+    .transaction-row .action-col,
+    .transaction-headers .action-col-spacer {
+        display: none !important;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="email"],
+    input[type="date"],
+    select,
+    textarea {
+        border: 1px solid #ccc !important;
+        background-color: #fff !important;
+        padding: 4px !important;
+    }
+
+    input[readonly] {
+        background-color: #f0f0f0 !important;
+        color: #000 !important;
+        border: 1px solid #bbb !important;
+    }
+
+    textarea,
+    textarea.ownerAddress,
+    textarea.companyAddressTextarea {
+        height: auto !important;
+        overflow: visible !important;
+        resize: none !important;
+    }
+
+    /* Force background colors for printing */
+    .shareholder-record,
+    .info-record,
+    .balance-section,
+    .company-details,
+    .summary-table th {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    .shareholder-record,
+    .info-record {
+        background-color: #e6ffe6 !important;
+    }
+
+    .balance-section {
+        background-color: #d9edf7 !important;
+    }
+
+    .summary-table th {
+        background-color: #add8e6 !important;
+    }
+
+    .summary-table {
+        width: 100%;
+        min-width: 0;
+    }
+}
