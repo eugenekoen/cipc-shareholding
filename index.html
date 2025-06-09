@@ -86,6 +86,7 @@
             <!-- Beneficial Interest content will be dynamically generated here -->
         </div>
 
+        <!-- MOVED: Summary is now a sibling to the tabs, not a child of registerTab -->
         <div class="shareholding-summary print-new-page">
             <h3>Shareholding Summary</h3>
             <table class="summary-table">
@@ -463,26 +464,26 @@
         function toggleRecordCollapse(buttonElement)
         {
             const recordDiv = buttonElement.closest('.shareholder-record');
-            if (recordDiv) setRecordCollapseState(recordDiv, recordDiv.classList.contains('collapsed'));
+            if (recordDiv) setRecordCollapseState(recordDiv, !recordDiv.classList.contains('collapsed'));
         }
 
-        function setRecordCollapseState(recordDiv, shouldExpand)
+        function setRecordCollapseState(recordDiv, shouldCollapse)
         {
             const recordBody = recordDiv.querySelector('.record-body');
             const collapseBtn = recordDiv.querySelector('.collapse-record-btn');
             const headerSpan = recordDiv.querySelector('.shareholder-record-header > span');
-            if (shouldExpand)
-            {
-                recordBody.style.display = 'block';
-                collapseBtn.textContent = '▲ Collapse';
-                recordDiv.classList.remove('collapsed');
-                headerSpan.textContent = 'Shareholder Details & Activity';
-            } else
+            if (shouldCollapse)
             {
                 recordBody.style.display = 'none';
                 collapseBtn.textContent = '▼ Expand';
                 recordDiv.classList.add('collapsed');
                 updateCollapsedHeader(collapseBtn);
+            } else
+            {
+                recordBody.style.display = 'block';
+                collapseBtn.textContent = '▲ Collapse';
+                recordDiv.classList.remove('collapsed');
+                headerSpan.textContent = 'Shareholder Details & Activity';
             }
         }
 

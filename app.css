@@ -498,6 +498,15 @@ h2 {
     background-color: #f9f9f9;
 }
 
+/* ADDED: On-screen visibility rules for summary */
+.shareholding-summary {
+    display: none;
+}
+
+#registerTab.active~.shareholding-summary {
+    display: block;
+}
+
 .shareholding-summary h3 {
     text-align: center;
     color: #333;
@@ -641,8 +650,9 @@ h2 {
         max-width: 100%;
     }
 
-    /* Hide all tab content by default */
-    .tab-content {
+    /* Hide all tab content and summary by default */
+    .tab-content,
+    .shareholding-summary {
         display: none !important;
     }
 
@@ -685,7 +695,8 @@ h2 {
         page-break-inside: avoid !important;
     }
 
-    .shareholder-records-container>h3 {
+    .shareholder-records-container>h3,
+    #beneficialTab>h3 {
         page-break-after: avoid !important;
     }
 
