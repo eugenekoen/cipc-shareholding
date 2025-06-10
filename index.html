@@ -63,6 +63,10 @@
                         <input type="number" id="totalSharesIssued" name="totalSharesIssued" min="0"
                             oninput="validateTotalIssuedShares(); updateShareholdingSummary();">
                     </div>
+                    <div class="form-group" style="grid-column: 1 / 2;">
+                        <label for="companyRegNo">Company Registration No.:</label>
+                        <input type="text" id="companyRegNo" name="companyRegNo" placeholder="e.g. 2023/123456/07">
+                    </div>
                 </div>
             </fieldset>
 
@@ -86,7 +90,6 @@
             <!-- Beneficial Interest content will be dynamically generated here -->
         </div>
 
-        <!-- MOVED: Summary is now a sibling to the tabs, not a child of registerTab -->
         <div class="shareholding-summary print-new-page">
             <h3>Shareholding Summary</h3>
             <table class="summary-table">
@@ -113,6 +116,19 @@
 
     </div>
 
+    <div id="certificateModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-controls">
+                <button id="printCertificateBtn">Print Certificate</button>
+                <button id="closeCertificateBtn">× Close</button>
+            </div>
+            <div id="certificateContainer">
+                <!-- Dynamic certificate content will be injected here by JS -->
+            </div>
+        </div>
+    </div>
+
+
     <template id="transactionRowTemplate">
         <div class="transaction-row">
             <div class="form-group date-col">
@@ -125,10 +141,17 @@
                     class="transactionNewCertNo" placeholder="New Cert No."> </div>
             <div class="form-group shares-col"> <input type="number" name="transactionShares" class="transactionShares"
                     min="0" value="0" oninput="handleTransactionChange(this)"> </div>
+            <!-- ADDED: Nominal Amount Input -->
+            <div class="form-group nominal-col"> <input type="text" name="transactionNominalAmount"
+                    class="transactionNominalAmount" placeholder="R 0.00" oninput="formatCurrency(this)"> </div>
             <div class="form-group transaction-details-col"> <input type="text" name="transactionDetails"
                     class="transactionDetails" placeholder="Transaction Details"> </div>
-            <div class="action-col"> <button type="button" class="delete-transaction-row-btn"
-                    onclick="deleteTransactionRow(this)">Del Row</button> </div>
+            <div class="action-col">
+                <button type="button" class="generate-cert-btn" title="Generate/View Certificate"
+                    onclick="generateCertificate(this)">View Cert</button>
+                <button type="button" class="delete-transaction-row-btn" onclick="deleteTransactionRow(this)">Del
+                    Row</button>
+            </div>
         </div>
     </template>
 
@@ -163,6 +186,7 @@
                             <div class="date-col">Date</div>
                             <div class="new-cert-col">New Cert. No.</div>
                             <div class="shares-col">No of Shares</div>
+                            <div class="nominal-col">Nominal Amount</div><!-- ADDED HEADER -->
                             <div class="transaction-details-col">Transaction Details</div>
                             <div class="action-col-spacer"></div>
                         </div>
@@ -176,7 +200,11 @@
                             <div class="date-col">Date</div>
                             <div class="new-cert-col">New Cert. No.</div>
                             <div class="shares-col">No of Shares</div>
-                            <div class="transaction-details-col">Transaction Details</div>
+                            <!-- No Nominal Amount Header Here -->
+                            <div class="transaction-details-col" style="flex: 2.5; margin-left: 148px;">
+                                <!-- Adjusted for alignment -->
+                                Transaction Details
+                            </div>
                             <div class="action-col-spacer"></div>
                         </div>
                         <div class="transferred-transactions-container"></div>
@@ -212,6 +240,8 @@
         const summaryTotalSharesHeldEl = document.getElementById('summaryTotalSharesHeld');
         const summaryDiscrepancyRowEl = document.getElementById('summaryDiscrepancyRow');
         const summaryDiscrepancyMessageEl = document.getElementById('summaryDiscrepancyMessage');
+        const certificateModal = document.getElementById('certificateModal');
+        const certificateContainer = document.getElementById('certificateContainer');
 
         // --- Print Buttons ---
         document.getElementById('printAllBtn').addEventListener('click', () => prepareAndPrint('printing-all'));
@@ -269,7 +299,6 @@
             {
                 if (targetInput.classList.contains('visible-date-input'))
                 {
-                    // For date fields, use the robust setFormattedDate function
                     setFormattedDate(targetInput, sourceInput.value);
                 } else
                 {
@@ -298,7 +327,6 @@
             {
                 visibleDateInput.value = '';
             }
-            // Trigger sync if the change comes from a linked beneficial field
             if (hiddenDateInput.hasAttribute('onchange') && hiddenDateInput.getAttribute('onchange').includes('syncBeneficialToRegister'))
             {
                 hiddenDateInput.onchange();
@@ -330,6 +358,39 @@
                 visibleDateInput.value = '';
                 const hiddenDateInput = visibleDateInput.parentElement.querySelector('.hidden-date-input');
                 if (hiddenDateInput) hiddenDateInput.value = '';
+            }
+        }
+
+        // ADDED: Currency formatting function
+        function formatCurrency(input)
+        {
+            let value = input.value;
+            if (value === '' || value === 'R ')
+            {
+                input.value = '';
+                return;
+            }
+
+            let rawValue = value.replace(/R\s?/g, '').replace(/,/g, '');
+            let parts = rawValue.split('.');
+            let integerPart = parts[0].replace(/[^0-9]/g, ''); // only allow digits in integer part
+            let decimalPart = parts[1];
+
+            let formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+            let newValue = 'R ' + (formattedInteger || '0');
+
+            if (typeof decimalPart !== 'undefined')
+            {
+                newValue += '.' + decimalPart.replace(/[^0-9]/g, '').substring(0, 2);
+            } else if (rawValue.includes('.'))
+            {
+                newValue += '.';
+            }
+
+            if (input.value !== newValue)
+            {
+                input.value = newValue;
             }
         }
 
@@ -504,7 +565,16 @@
         {
             const shareholderRecordDiv = buttonElementOrDiv.closest('.shareholder-record');
             const container = shareholderRecordDiv.querySelector(type === 'acquired' ? '.acquired-transactions-container' : '.transferred-transactions-container');
-            const newRow = transactionRowTemplate.content.cloneNode(true).querySelector('.transaction-row');
+            const newRowTemplate = transactionRowTemplate.content.cloneNode(true);
+
+            // For transferred rows, we don't need the 'View Cert' or 'Nominal Amount' fields
+            if (type === 'transferred')
+            {
+                newRowTemplate.querySelector('.generate-cert-btn')?.remove();
+                newRowTemplate.querySelector('.form-group.nominal-col')?.remove();
+            }
+
+            const newRow = newRowTemplate.querySelector('.transaction-row');
             container.appendChild(newRow);
 
             if (data)
@@ -513,6 +583,10 @@
                 newRow.querySelector('.transactionNewCertNo').value = data.newCertNo || '';
                 newRow.querySelector('.transactionShares').value = data.shares || 0;
                 newRow.querySelector('.transactionDetails').value = data.details || '';
+                if (newRow.querySelector('.transactionNominalAmount'))
+                {
+                    newRow.querySelector('.transactionNominalAmount').value = data.nominalAmount || '';
+                }
             }
             calculateShareholderBalance(shareholderRecordDiv);
             return newRow;
@@ -550,6 +624,7 @@
         }
 
         // --- Beneficial Interest Tab Logic ---
+        // (This section is unchanged, so it is omitted for brevity)
         function createBeneficialFormGroup(fieldName, shareholderId, label, type = 'text', value = '', options = {})
         {
             const group = document.createElement('div');
@@ -740,6 +815,7 @@
             data.companyDetails.address = document.getElementById('companyAddressTextarea').value;
             data.companyDetails.authorizedShares = document.getElementById('authorizedShares').value;
             data.companyDetails.totalSharesIssued = document.getElementById('totalSharesIssued').value;
+            data.companyDetails.companyRegNo = document.getElementById('companyRegNo').value;
 
             document.querySelectorAll('#shareholderRegister .shareholder-record').forEach(recordDiv =>
             {
@@ -773,12 +849,20 @@
                     shareholder.ownerDetails.registrationCountry = recordDiv.querySelector('.registrationCountryInput')?.value || '';
                 }
 
-                recordDiv.querySelectorAll('.acquired-transactions-container .transaction-row').forEach(row => shareholder.acquiredTransactions.push({ date: getFormattedDate(row.querySelector('.transactionDate.visible-date-input')), newCertNo: row.querySelector('.transactionNewCertNo').value, shares: row.querySelector('.transactionShares').value, details: row.querySelector('.transactionDetails').value }));
+                recordDiv.querySelectorAll('.acquired-transactions-container .transaction-row').forEach(row =>
+                {
+                    shareholder.acquiredTransactions.push({
+                        date: getFormattedDate(row.querySelector('.transactionDate.visible-date-input')),
+                        newCertNo: row.querySelector('.transactionNewCertNo').value,
+                        shares: row.querySelector('.transactionShares').value,
+                        nominalAmount: row.querySelector('.transactionNominalAmount')?.value || '', // MODIFIED
+                        details: row.querySelector('.transactionDetails').value
+                    });
+                });
                 recordDiv.querySelectorAll('.transferred-transactions-container .transaction-row').forEach(row => shareholder.transferredTransactions.push({ date: getFormattedDate(row.querySelector('.transactionDate.visible-date-input')), newCertNo: row.querySelector('.transactionNewCertNo').value, shares: row.querySelector('.transactionShares').value, details: row.querySelector('.transactionDetails').value }));
                 shareholder.balance.shares = recordDiv.querySelector('.balanceShares').value;
                 shareholder.balance.certNos = recordDiv.querySelector('.balanceCertNos').value;
 
-                // If beneficial tab has been rendered for this user, get its data
                 const id = shareholder.id;
                 if (document.getElementById(`ben_saCitizen_${id}`))
                 {
@@ -835,6 +919,7 @@
                     document.getElementById('companyAddressTextarea').value = cd.address || '';
                     document.getElementById('authorizedShares').value = cd.authorizedShares || '';
                     document.getElementById('totalSharesIssued').value = cd.totalSharesIssued || '';
+                    document.getElementById('companyRegNo').value = cd.companyRegNo || '';
 
                     if (data.shareholders && Array.isArray(data.shareholders))
                     {
@@ -858,6 +943,7 @@
         }
 
         // --- Summary and Validation ---
+        // (This section is unchanged, so it is omitted for brevity)
         function updateShareholdingSummary()
         {
             summaryTableBody.innerHTML = '';
@@ -919,10 +1005,110 @@
 
         function prepareAndPrint(printClass)
         {
+            if (document.querySelector('#beneficialTab.active'))
+            {
+                renderBeneficialInterestTab(getCurrentStateData());
+            }
             document.body.className = printClass;
             window.print();
             setTimeout(() => { document.body.className = ''; }, 1000);
         }
+
+        // --- START: Certificate Generation and Modal Logic ---
+        function generateCertificate(buttonElement)
+        {
+            const transactionRow = buttonElement.closest('.transaction-row');
+            const shareholderRecord = buttonElement.closest('.shareholder-record');
+            if (!transactionRow || !shareholderRecord)
+            {
+                alert('Could not find required record data.');
+                return;
+            }
+
+            // 1. Gather Data
+            const companyName = document.getElementById('companyName').value || '[COMPANY NAME]';
+            const companyRegNo = document.getElementById('companyRegNo').value || '[Registration Number]';
+
+            const recordType = shareholderRecord.dataset.recordType;
+            let shareholderName;
+            if (recordType === 'natural')
+            {
+                const firstName = shareholderRecord.querySelector('.firstName')?.value || '';
+                const surname = shareholderRecord.querySelector('.surname')?.value || '';
+                shareholderName = `${firstName} ${surname}`.trim();
+            } else
+            {
+                shareholderName = shareholderRecord.querySelector('.ownerName')?.value || '';
+            }
+            const shareholderAddress = shareholderRecord.querySelector('.ownerAddress')?.value || '';
+            const nameAndAddress = `${shareholderName}\n${shareholderAddress}`;
+
+            const classOfShares = shareholderRecord.querySelector('.classOfShares')?.value || document.getElementById('companyClassOfShares').value || 'Ordinary - Par Value';
+
+            // MODIFIED: Get data from transaction row
+            const date = getFormattedDate(transactionRow.querySelector('.transactionDate.visible-date-input')) || '[DATE]';
+            const certificateNumber = transactionRow.querySelector('.transactionNewCertNo').value || '[CERT#]';
+            const numberOfShares = parseInt(transactionRow.querySelector('.transactionShares').value) || 0;
+            const nominalAmount = transactionRow.querySelector('.transactionNominalAmount')?.value || '';
+
+            // 2. Build HTML for the certificate
+            const certificateHtml = `
+                <div class="cert-header-1">SHARE CERTIFICATE</div>
+                <div class="cert-header-2">${companyName}</div>
+                <div class="cert-company-info">
+                    (Incorporated in the Republic of South Africa)<br>
+                    Registration number: ${companyRegNo}
+                </div>
+                <div class="cert-body-text">
+                    This is to certify that the undermentioned is the registered proprietor of fully paid up shares as shown below
+                    in the capital of the above company, subject to the Memorandum of Incorporation
+                </div>
+                <table class="cert-table">
+                    <thead>
+                        <tr>
+                            <th>NAME AND ADDRESS</th>
+                            <th>CLASS OF SHARES</th>
+                            <th>NOMINAL AMOUNT</th>
+                            <th>DATE</th>
+                            <th>CERTIFICATE NUMBER</th>
+                            <th>NUMBER OF SHARES</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="name-address-cell">${nameAndAddress}</td>
+                            <td style="text-align: center;">${classOfShares}</td>
+                            <td style="text-align: center;">${nominalAmount}</td> <!-- MODIFIED -->
+                            <td style="text-align: center;">${date}</td>
+                            <td style="text-align: center;">${certificateNumber}</td>
+                            <td style="text-align: center;">${new Intl.NumberFormat().format(numberOfShares)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="cert-signature-section">
+                    <div class="cert-signature-line"></div>
+                    <div class="cert-director-label">DIRECTOR</div>
+                </div>
+            `;
+
+            // 3. Inject HTML into the container and display the modal
+            certificateContainer.innerHTML = certificateHtml;
+            certificateModal.style.display = 'flex';
+        }
+
+        document.getElementById('closeCertificateBtn').addEventListener('click', () =>
+        {
+            certificateModal.style.display = 'none';
+        });
+
+        document.getElementById('printCertificateBtn').addEventListener('click', () =>
+        {
+            document.body.classList.add('printing-certificate');
+            window.print();
+            setTimeout(() => { document.body.classList.remove('printing-certificate'); }, 500);
+        });
+        // --- END: Certificate Generation and Modal Logic ---
+
 
         // --- Initial calls on page load ---
         validateTotalIssuedShares();

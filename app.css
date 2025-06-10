@@ -16,7 +16,8 @@ body {
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    max-width: 1350px;
+    max-width: 1500px;
+    /* MODIFIED: Increased width */
     margin-left: auto;
     margin-right: auto;
 }
@@ -399,7 +400,15 @@ h2 {
 
 .transaction-headers>div.date-col,
 .transaction-row .form-group.date-col {
-    flex-basis: 120px;
+    flex-basis: 80px;
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+
+/* ADDED: Nominal Amount Column */
+.transaction-headers>div.nominal-col,
+.transaction-row .form-group.nominal-col {
+    flex-basis: 140px;
     flex-grow: 0;
     flex-shrink: 0;
 }
@@ -418,19 +427,20 @@ h2 {
 
 .transaction-headers>div.transaction-details-col,
 .transaction-row .form-group.transaction-details-col {
-    flex: 3.2;
+    flex: 2.5;
+    /* MODIFIED: Adjusted flex */
 }
 
 .transaction-headers>div.action-col-spacer,
 .transaction-row .action-col {
-    flex-basis: 70px;
+    flex-basis: 130px;
     flex-grow: 0;
     flex-shrink: 0;
 }
 
 .transaction-row {
     display: flex;
-    gap: 8px;
+    gap: 2px;
     align-items: flex-end;
     margin-bottom: 8px;
     padding: 5px;
@@ -444,8 +454,14 @@ h2 {
     display: none;
 }
 
-.delete-transaction-row-btn {
-    background-color: #d9534f;
+.transaction-row .action-col {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.delete-transaction-row-btn,
+.generate-cert-btn {
     color: white;
     border: none;
     padding: 6px 8px;
@@ -454,7 +470,24 @@ h2 {
     font-size: 0.8em;
     width: 100%;
     height: 30px;
+    /* MODIFIED: Use flexbox for perfect centering */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
+
+.delete-transaction-row-btn {
+    background-color: #d9534f;
+}
+
+.generate-cert-btn {
+    background-color: #007bff;
+}
+
+.generate-cert-btn:hover {
+    background-color: #0056b3;
+}
+
 
 .add-transaction-btn {
     background-color: #f0ad4e;
@@ -498,7 +531,6 @@ h2 {
     background-color: #f9f9f9;
 }
 
-/* ADDED: On-screen visibility rules for summary */
 .shareholding-summary {
     display: none;
 }
@@ -611,6 +643,163 @@ h2 {
     padding: 50px;
 }
 
+/* --- START: Certificate Modal Styles --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: none;
+    /* Changed by JS */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 1120px;
+    /* A4 landscape-ish width */
+    max-height: 95vh;
+    overflow-y: auto;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.modal-controls {
+    text-align: right;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.modal-controls button {
+    padding: 8px 15px;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    font-size: 0.9em;
+    margin-left: 10px;
+}
+
+#printCertificateBtn {
+    background-color: #28a745;
+    color: white;
+}
+
+#printCertificateBtn:hover {
+    background-color: #218838;
+}
+
+#closeCertificateBtn {
+    background-color: #6c757d;
+    color: white;
+}
+
+#closeCertificateBtn:hover {
+    background-color: #5a6268;
+}
+
+#certificateContainer {
+    border: 3px solid #000;
+    padding: 20px;
+    font-family: 'Roboto', sans-serif;
+    /* MODIFIED: Font changed to Roboto */
+    color: #000;
+    background-color: #fff;
+}
+
+.cert-header-1 {
+    background-color: #d0e0f0;
+    /* Light blue from image */
+    border: 1px solid #000;
+    text-align: center;
+    font-weight: bold;
+    font-size: 20px;
+    padding: 10px;
+    letter-spacing: 2px;
+}
+
+.cert-header-2 {
+    background-color: #e6f2d9;
+    /* Light green from image */
+    border: 1px solid #000;
+    text-align: center;
+    font-weight: bold;
+    font-size: 18px;
+    padding: 8px;
+    margin-top: 15px;
+}
+
+.cert-company-info {
+    text-align: center;
+    font-size: 14px;
+    margin-top: 15px;
+}
+
+.cert-body-text {
+    text-align: center;
+    font-size: 14px;
+    margin: 30px auto;
+    max-width: 80%;
+}
+
+.cert-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+.cert-table th,
+.cert-table td {
+    border: 2px solid #000;
+    padding: 12px;
+    vertical-align: top;
+}
+
+.cert-table th {
+    background-color: #e6f2d9;
+    /* Light green */
+    text-align: center;
+    font-weight: bold;
+}
+
+.cert-table td {
+    height: 100px;
+    /* Give some space like in the template */
+}
+
+.cert-table .name-address-cell {
+    white-space: pre-wrap;
+    /* To respect newlines in address */
+}
+
+.cert-signature-section {
+    margin-top: 80px;
+    margin-bottom: 20px;
+    text-align: right;
+    padding-right: 5px;
+}
+
+.cert-signature-line {
+    width: 200px;
+    border-top: 1px solid #000;
+    margin: 0 0 5px auto;
+}
+
+.cert-director-label {
+    font-size: 14px;
+}
+
+/* --- END: Certificate Modal Styles --- */
+
+
 .print-new-page {
     page-break-before: always !important;
 }
@@ -639,7 +828,8 @@ h2 {
     .collapse-record-btn,
     .record-bulk-actions,
     .tab-nav,
-    .collapse-beneficial-btn {
+    .collapse-beneficial-btn,
+    .generate-cert-btn {
         display: none !important;
     }
 
@@ -755,6 +945,8 @@ h2 {
         background-color: #d9edf7 !important;
     }
 
+
+
     .summary-table th {
         background-color: #add8e6 !important;
     }
@@ -763,4 +955,56 @@ h2 {
         width: 100%;
         min-width: 0;
     }
+
+    /* --- START: Certificate Print Styles --- */
+    body.printing-certificate .modal-overlay {
+        display: block !important;
+        position: static !important;
+        background: none !important;
+        padding: 0 !important;
+        height: auto;
+        width: auto;
+    }
+
+    body.printing-certificate .modal-content {
+        box-shadow: none !important;
+        padding: 0 !important;
+        border: none !important;
+        border-radius: 0 !important;
+        max-height: none !important;
+        overflow: visible !important;
+        max-width: none;
+    }
+
+    body.printing-certificate>*:not(.modal-overlay) {
+        display: none !important;
+    }
+
+    body.printing-certificate .modal-controls {
+        display: none !important;
+    }
+
+    body.printing-certificate #certificateContainer {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        border: none !important;
+    }
+
+    body.printing-certificate .cert-header-1,
+    body.printing-certificate .cert-header-2,
+    body.printing-certificate .cert-table th {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    body.printing-certificate .cert-header-1 {
+        background-color: #d0e0f0 !important;
+    }
+
+    body.printing-certificate .cert-header-2,
+    body.printing-certificate .cert-table th {
+        background-color: #e6f2d9 !important;
+    }
+
+    /* --- END: Certificate Print Styles --- */
 }
