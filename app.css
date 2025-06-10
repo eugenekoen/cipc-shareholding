@@ -400,7 +400,7 @@ h2 {
 
 .transaction-headers>div.date-col,
 .transaction-row .form-group.date-col {
-    flex-basis: 80px;
+    flex-basis: 120px;
     flex-grow: 0;
     flex-shrink: 0;
 }
@@ -440,7 +440,7 @@ h2 {
 
 .transaction-row {
     display: flex;
-    gap: 2px;
+    gap: 8px;
     align-items: flex-end;
     margin-bottom: 8px;
     padding: 5px;
