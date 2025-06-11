@@ -1,3 +1,4 @@
+--- START OF FILE app.css ---
 /* --- START OF FILE app.css --- */
 
 * {
@@ -398,45 +399,51 @@ h2 {
     padding: 4px 2px;
 }
 
+/* --- MODIFIED: Start of Transaction Column Width Adjustments --- */
 .transaction-headers>div.date-col,
 .transaction-row .form-group.date-col {
-    flex-basis: 120px;
-    flex-grow: 0;
-    flex-shrink: 0;
+    flex: 0 0 120px;
+    /* Unchanged */
 }
 
-/* ADDED: Nominal Amount Column */
 .transaction-headers>div.nominal-col,
 .transaction-row .form-group.nominal-col {
-    flex-basis: 140px;
-    flex-grow: 0;
-    flex-shrink: 0;
+    flex: 0 0 120px;
+    /* Was 140px */
+}
+
+.transaction-headers>div.consideration-col,
+.transaction-row .form-group.consideration-col {
+    flex: 0 0 90px;
+    /* Was 140px, made 35% thinner */
 }
 
 .transaction-headers>div.new-cert-col,
 .transaction-row .form-group.new-cert-col {
-    flex: 1;
+    flex: 0 0 100px;
+    /* Was flex: 1, now a fixed smaller width */
 }
 
 .transaction-headers>div.shares-col,
 .transaction-row .form-group.shares-col {
-    flex-basis: 70px;
-    flex-grow: 0;
-    flex-shrink: 0;
+    flex: 0 0 50px;
+    /* Was 70px, made smaller */
 }
 
 .transaction-headers>div.transaction-details-col,
 .transaction-row .form-group.transaction-details-col {
-    flex: 2.5;
-    /* MODIFIED: Adjusted flex */
+    flex: 1 1 auto;
+    /* Takes up all remaining flexible space */
 }
 
 .transaction-headers>div.action-col-spacer,
 .transaction-row .action-col {
-    flex-basis: 75px;
-    flex-grow: 0;
-    flex-shrink: 0;
+    flex: 0 0 75px;
+    /* Unchanged */
 }
+
+/* --- MODIFIED: End of Transaction Column Width Adjustments --- */
+
 
 .transaction-row {
     display: flex;
@@ -461,7 +468,8 @@ h2 {
 }
 
 .delete-transaction-row-btn,
-.generate-cert-btn {
+.generate-cert-btn,
+.generate-cm42-btn {
     color: white;
     border: none;
     padding: 6px 8px;
@@ -470,7 +478,6 @@ h2 {
     font-size: 0.8em;
     width: 100%;
     height: 30px;
-    /* MODIFIED: Use flexbox for perfect centering */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -486,6 +493,15 @@ h2 {
 
 .generate-cert-btn:hover {
     background-color: #0056b3;
+}
+
+/* ADDED: Style for new button */
+.generate-cm42-btn {
+    background-color: #17a2b8;
+}
+
+.generate-cm42-btn:hover {
+    background-color: #138496;
 }
 
 
@@ -643,7 +659,7 @@ h2 {
     padding: 50px;
 }
 
-/* --- START: Certificate Modal Styles --- */
+/* --- START: General Modal Styles --- */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -664,8 +680,6 @@ h2 {
     padding: 20px;
     border-radius: 8px;
     width: 100%;
-    max-width: 1120px;
-    /* A4 landscape-ish width */
     max-height: 95vh;
     overflow-y: auto;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
@@ -685,6 +699,12 @@ h2 {
     cursor: pointer;
     font-size: 0.9em;
     margin-left: 10px;
+}
+
+/* --- START: Certificate Modal Styles --- */
+#certificateModal .modal-content {
+    max-width: 1120px;
+    /* A4 landscape-ish width */
 }
 
 #printCertificateBtn {
@@ -709,14 +729,12 @@ h2 {
     border: 3px solid #000;
     padding: 20px;
     font-family: 'Roboto', sans-serif;
-    /* MODIFIED: Font changed to Roboto */
     color: #000;
     background-color: #fff;
 }
 
 .cert-header-1 {
     background-color: #d0e0f0;
-    /* Light blue from image */
     border: 1px solid #000;
     text-align: center;
     font-weight: bold;
@@ -727,7 +745,6 @@ h2 {
 
 .cert-header-2 {
     background-color: #e6f2d9;
-    /* Light green from image */
     border: 1px solid #000;
     text-align: center;
     font-weight: bold;
@@ -765,19 +782,16 @@ h2 {
 
 .cert-table th {
     background-color: #e6f2d9;
-    /* Light green */
     text-align: center;
     font-weight: bold;
 }
 
 .cert-table td {
     height: 100px;
-    /* Give some space like in the template */
 }
 
 .cert-table .name-address-cell {
     white-space: pre-wrap;
-    /* To respect newlines in address */
 }
 
 .cert-signature-section {
@@ -799,6 +813,133 @@ h2 {
 
 /* --- END: Certificate Modal Styles --- */
 
+
+/* --- START: CM42 Modal Styles (from cm42.html) --- */
+
+#cm42Modal .modal-content {
+    max-width: 900px;
+}
+
+#printCm42Btn {
+    background-color: #28a745;
+    color: white;
+}
+
+#printCm42Btn:hover {
+    background-color: #218838;
+}
+
+#closeCm42Btn {
+    background-color: #6c757d;
+    color: white;
+}
+
+#closeCm42Btn:hover {
+    background-color: #5a6268;
+}
+
+
+#cm42Container h1,
+#cm42Container h2,
+#cm42Container h3 {
+    color: #2c3e50;
+    margin-bottom: 0.5em;
+}
+
+#cm42Container h1 {
+    text-align: center;
+    font-size: 24px;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+#cm42Container h2 {
+    text-align: center;
+    font-size: 16px;
+    font-weight: normal;
+    color: #555;
+    margin-top: 0;
+    margin-bottom: 30px;
+}
+
+#cm42Container h3 {
+    font-size: 18px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+    margin-top: 30px;
+}
+
+#cm42Container .form-section {
+    margin-bottom: 25px;
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+#cm42Container .form-section h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+#cm42Container .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 20px;
+    align-items: start;
+}
+
+#cm42Container label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+#cm42Container input[type="text"],
+#cm42Container input[type="number"],
+#cm42Container textarea,
+#cm42Container select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 15px;
+    font-family: 'Roboto', sans-serif;
+}
+
+#cm42Container input.date-input {
+    background-color: #fff;
+    cursor: pointer;
+}
+
+#cm42Container textarea {
+    resize: vertical;
+    min-height: 90px;
+}
+
+#cm42Container .full-width {
+    grid-column: 1 / -1;
+}
+
+#cm42Container .signature-box {
+    border: 1px solid #ccc;
+    margin-top: 5px;
+    padding: 10px;
+    height: 80px;
+    background-color: #fff;
+}
+
+#cm42Container .signature-label {
+    font-size: 12px;
+    color: #777;
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* --- END: CM42 Modal Styles --- */
 
 .print-new-page {
     page-break-before: always !important;
@@ -829,7 +970,9 @@ h2 {
     .record-bulk-actions,
     .tab-nav,
     .collapse-beneficial-btn,
-    .generate-cert-btn {
+    .generate-cert-btn,
+    .generate-cm42-btn,
+    .modal-controls {
         display: none !important;
     }
 
@@ -881,7 +1024,8 @@ h2 {
     .company-details,
     .shareholder-record,
     .info-record,
-    .shareholding-summary {
+    .shareholding-summary,
+    #cm42Container .form-section {
         page-break-inside: avoid !important;
     }
 
@@ -945,8 +1089,6 @@ h2 {
         background-color: #d9edf7 !important;
     }
 
-
-
     .summary-table th {
         background-color: #add8e6 !important;
     }
@@ -956,38 +1098,47 @@ h2 {
         min-width: 0;
     }
 
-    /* --- START: Certificate Print Styles --- */
-    body.printing-certificate .modal-overlay {
-        display: block !important;
-        position: static !important;
-        background: none !important;
-        padding: 0 !important;
-        height: auto;
-        width: auto;
+    /* --- MODIFIED: Make modal print like a normal document, not an overlay --- */
+    body.printing-certificate,
+    body.printing-cm42 {
+        background: #fff !important;
     }
 
-    body.printing-certificate .modal-content {
-        box-shadow: none !important;
+    body.printing-certificate>.container,
+    body.printing-certificate>#cm42Modal,
+    body.printing-cm42>.container,
+    body.printing-cm42>#certificateModal {
+        display: none !important;
+    }
+
+    body.printing-certificate #certificateModal,
+    body.printing-cm42 #cm42Modal {
+        position: static !important;
+        display: block !important;
+        background: transparent !important;
         padding: 0 !important;
+        overflow: visible !important;
+        height: auto;
+        width: auto;
+        z-index: auto;
+    }
+
+    body.printing-certificate .modal-content,
+    body.printing-cm42 .modal-content {
+        box-shadow: none !important;
         border: none !important;
-        border-radius: 0 !important;
+        padding: 0 !important;
         max-height: none !important;
         overflow: visible !important;
+        width: 100%;
         max-width: none;
     }
 
-    body.printing-certificate>*:not(.modal-overlay) {
-        display: none !important;
-    }
-
-    body.printing-certificate .modal-controls {
-        display: none !important;
-    }
-
+    /* --- Certificate-Specific Print Styles --- */
     body.printing-certificate #certificateContainer {
+        border: none !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
-        border: none !important;
     }
 
     body.printing-certificate .cert-header-1,
@@ -1006,5 +1157,39 @@ h2 {
         background-color: #e6f2d9 !important;
     }
 
-    /* --- END: Certificate Print Styles --- */
+    /* --- CM42-Specific Print Styles --- */
+    body.printing-cm42 {
+        font-size: 10pt;
+    }
+
+    body.printing-cm42 #cm42Container .form-section {
+        background-color: #fff !important;
+        border: 1px solid #ccc;
+        padding: 10px 15px;
+        margin-bottom: 12px !important;
+    }
+
+    body.printing-cm42 #cm42Container h3 {
+        margin-top: 15px;
+        margin-bottom: 10px;
+        padding-bottom: 5px;
+        font-size: 14px;
+    }
+
+    body.printing-cm42 #cm42Container input[type="text"],
+    body.printing-cm42 #cm42Container input[type="number"],
+    body.printing-cm42 #cm42Container textarea,
+    body.printing-cm42 #cm42Container select {
+        padding: 6px;
+        font-size: 10pt;
+    }
+
+    body.printing-cm42 #cm42Container .signature-box {
+        height: 50px;
+    }
+
+    body.printing-cm42 #cm42-transferee-address {
+        height: 70px !important;
+        min-height: 70px !important;
+    }
 }

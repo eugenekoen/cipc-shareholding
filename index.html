@@ -9,6 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- ADDED: Flatpickr for CM42 date fields -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="app.css">
 </head>
 
@@ -116,6 +118,7 @@
 
     </div>
 
+    <!-- Share Certificate Modal -->
     <div id="certificateModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-controls">
@@ -124,6 +127,84 @@
             </div>
             <div id="certificateContainer">
                 <!-- Dynamic certificate content will be injected here by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ADDED: CM42 Securities Transfer Form Modal -->
+    <div id="cm42Modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-controls">
+                <button id="printCm42Btn">Print CM42</button>
+                <button id="closeCm42Btn">× Close</button>
+            </div>
+            <div id="cm42Container">
+                <h1>Securities Transfer Form - CM42</h1>
+                <h2>In terms of the Companies Act, 71 of 2008 and the Securities Transfer Tax Act, 25 of 2007</h2>
+
+                <div class="form-section">
+                    <h3>A. Details of Securities Being Transferred</h3>
+                    <div class="form-grid">
+                        <div class="full-width"><label for="cm42-issuer-name">Full Name of issuer of security as shown
+                                on certificate</label><input type="text" id="cm42-issuer-name"></div>
+                        <div><label for="cm42-security-description">Description of Securities</label><input type="text"
+                                id="cm42-security-description"></div>
+                        <div><label for="cm42-certificate-numbers">Share Certificate Number(s)</label><input type="text"
+                                id="cm42-certificate-numbers"></div>
+                        <div><label for="cm42-quantity-figures">Quantity in Figures</label><input type="number"
+                                id="cm42-quantity-figures"></div>
+                        <div><label for="cm42-quantity-words">Quantity in Words</label><input type="text"
+                                id="cm42-quantity-words"></div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>B. Transfer FROM (Details of current holder / Transferor)</h3>
+                    <div class="form-grid">
+                        <div><label for="cm42-transferor-name">Full Name(s) as per Share Register</label>
+                            <select id="cm42-transferor-name"></select>
+                        </div>
+                        <div><label for="cm42-transferor-id">ID / Company Registration Number</label><input type="text"
+                                id="cm42-transferor-id"></div>
+                        <div class="full-width">
+                            <p style="font-size: 13px; margin: 15px 0 5px 0;">I/We, the undersigned, hereby transfer the
+                                above-mentioned securities from the name(s) aforesaid.</p>
+                        </div>
+                        <div><label>Signature of Transferor(s) or Authorised Agent</label>
+                            <div class="signature-box"></div>
+                            <div class="signature-label">Signature</div>
+                        </div>
+                        <div><label for="cm42-signature-date">Date of Signature</label><input type="text"
+                                id="cm42-signature-date" class="date-input" placeholder="DD/MM/YYYY"></div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>C. Transfer TO (Details of new holder / Transferee)</h3>
+                    <div class="form-grid">
+                        <div><label for="cm42-transferee-name">Full Name(s) of New Holder</label>
+                            <select id="cm42-transferee-name"></select>
+                        </div>
+                        <div><label for="cm42-transferee-id">ID / Company Registration Number</label><input type="text"
+                                id="cm42-transferee-id"></div>
+                        <div><label for="cm42-transferee-address">Full Postal Address</label><textarea
+                                id="cm42-transferee-address" rows="4"></textarea></div>
+                        <div>
+                            <label for="cm42-transferee-email">Email Address</label><input type="text"
+                                id="cm42-transferee-email">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>D. Consideration and Securities Transfer Tax (STT)</h3>
+                    <div class="form-grid">
+                        <div><label for="cm42-consideration-amount">Consideration (Price Paid)</label><input type="text"
+                                id="cm42-consideration-amount" placeholder="e.g R555,000.00"></div>
+                        <div><label for="cm42-transaction-date">Date of Transaction</label><input type="text"
+                                id="cm42-transaction-date" class="date-input" placeholder="DD/MM/YYYY"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -141,14 +222,17 @@
                     class="transactionNewCertNo" placeholder="New Cert No."> </div>
             <div class="form-group shares-col"> <input type="number" name="transactionShares" class="transactionShares"
                     min="0" value="0" oninput="handleTransactionChange(this)"> </div>
-            <!-- ADDED: Nominal Amount Input -->
             <div class="form-group nominal-col"> <input type="text" name="transactionNominalAmount"
                     class="transactionNominalAmount" placeholder="R 0.00" oninput="formatCurrency(this)"> </div>
+            <div class="form-group consideration-col"> <input type="text" name="transactionConsideration"
+                    class="transactionConsideration" placeholder="R 0.00" oninput="formatCurrency(this)"> </div>
             <div class="form-group transaction-details-col"> <input type="text" name="transactionDetails"
                     class="transactionDetails" placeholder="Transaction Details"> </div>
             <div class="action-col">
                 <button type="button" class="generate-cert-btn" title="Generate/View Certificate"
                     onclick="generateCertificate(this)">View Cert</button>
+                <button type="button" class="generate-cm42-btn" title="Generate CM42 Transfer Form"
+                    onclick="generateCM42(this)">CM42</button>
                 <button type="button" class="delete-transaction-row-btn" onclick="deleteTransactionRow(this)">Del
                     Row</button>
             </div>
@@ -186,7 +270,7 @@
                             <div class="date-col">Date</div>
                             <div class="new-cert-col">New Cert. No.</div>
                             <div class="shares-col">No of Shares</div>
-                            <div class="nominal-col">Nominal Amount</div><!-- ADDED HEADER -->
+                            <div class="nominal-col">Nominal Amount</div>
                             <div class="transaction-details-col">Transaction Details</div>
                             <div class="action-col-spacer"></div>
                         </div>
@@ -200,11 +284,8 @@
                             <div class="date-col">Date</div>
                             <div class="new-cert-col">New Cert. No.</div>
                             <div class="shares-col">No of Shares</div>
-                            <!-- No Nominal Amount Header Here -->
-                            <div class="transaction-details-col" style="flex: 2.5; margin-left: 148px;">
-                                <!-- Adjusted for alignment -->
-                                Transaction Details
-                            </div>
+                            <div class="consideration-col">Consideration</div>
+                            <div class="transaction-details-col">Transaction Details</div>
                             <div class="action-col-spacer"></div>
                         </div>
                         <div class="transferred-transactions-container"></div>
@@ -226,6 +307,8 @@
         </div>
     </template>
 
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
     <script>
         // --- Global DOM Elements ---
         const addNaturalPersonButton = document.getElementById('addNaturalPersonButton');
@@ -242,6 +325,8 @@
         const summaryDiscrepancyMessageEl = document.getElementById('summaryDiscrepancyMessage');
         const certificateModal = document.getElementById('certificateModal');
         const certificateContainer = document.getElementById('certificateContainer');
+        const cm42Modal = document.getElementById('cm42Modal');
+        let cm42DataStore = [];
 
         // --- Print Buttons ---
         document.getElementById('printAllBtn').addEventListener('click', () => prepareAndPrint('printing-all'));
@@ -283,7 +368,7 @@
 
             if (tabId === 'beneficialTab')
             {
-                const data = getCurrentStateData(); // Get current state to render
+                const data = getCurrentStateData();
                 renderBeneficialInterestTab(data);
             }
         }
@@ -361,7 +446,6 @@
             }
         }
 
-        // ADDED: Currency formatting function
         function formatCurrency(input)
         {
             let value = input.value;
@@ -373,11 +457,10 @@
 
             let rawValue = value.replace(/R\s?/g, '').replace(/,/g, '');
             let parts = rawValue.split('.');
-            let integerPart = parts[0].replace(/[^0-9]/g, ''); // only allow digits in integer part
+            let integerPart = parts[0].replace(/[^0-9]/g, '');
             let decimalPart = parts[1];
 
             let formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-
             let newValue = 'R ' + (formattedInteger || '0');
 
             if (typeof decimalPart !== 'undefined')
@@ -393,6 +476,29 @@
                 input.value = newValue;
             }
         }
+
+        const formatCm42Currency = (event) =>
+        {
+            const input = event.target;
+            let value = input.value;
+            if (!value || value.startsWith('R ')) return;
+
+            let numericValue = parseFloat(value.replace(/[^0-9.,]/g, '').replace(',', '.'));
+            if (!isNaN(numericValue))
+            {
+                const formatter = new Intl.NumberFormat('en-ZA', {
+                    style: 'currency',
+                    currency: 'ZAR',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+                input.value = formatter.format(numericValue);
+            } else
+            {
+                input.value = '';
+            }
+        };
+
 
         // --- Shareholder Register Tab Logic ---
         function buildFieldHtml(type, name, inputClass, labelText, value = '', placeholder = '', oninput = null, rows = null)
@@ -566,15 +672,18 @@
             const shareholderRecordDiv = buttonElementOrDiv.closest('.shareholder-record');
             const container = shareholderRecordDiv.querySelector(type === 'acquired' ? '.acquired-transactions-container' : '.transferred-transactions-container');
             const newRowTemplate = transactionRowTemplate.content.cloneNode(true);
+            const newRow = newRowTemplate.querySelector('.transaction-row');
 
-            // For transferred rows, we don't need the 'View Cert' or 'Nominal Amount' fields
-            if (type === 'transferred')
+            if (type === 'acquired')
             {
-                newRowTemplate.querySelector('.generate-cert-btn')?.remove();
-                newRowTemplate.querySelector('.form-group.nominal-col')?.remove();
+                newRow.querySelector('.form-group.consideration-col')?.remove();
+                newRow.querySelector('.generate-cm42-btn')?.remove();
+            } else if (type === 'transferred')
+            {
+                newRow.querySelector('.form-group.nominal-col')?.remove();
+                newRow.querySelector('.generate-cert-btn')?.remove();
             }
 
-            const newRow = newRowTemplate.querySelector('.transaction-row');
             container.appendChild(newRow);
 
             if (data)
@@ -586,6 +695,10 @@
                 if (newRow.querySelector('.transactionNominalAmount'))
                 {
                     newRow.querySelector('.transactionNominalAmount').value = data.nominalAmount || '';
+                }
+                if (newRow.querySelector('.transactionConsideration'))
+                {
+                    newRow.querySelector('.transactionConsideration').value = data.consideration || '';
                 }
             }
             calculateShareholderBalance(shareholderRecordDiv);
@@ -624,7 +737,6 @@
         }
 
         // --- Beneficial Interest Tab Logic ---
-        // (This section is unchanged, so it is omitted for brevity)
         function createBeneficialFormGroup(fieldName, shareholderId, label, type = 'text', value = '', options = {})
         {
             const group = document.createElement('div');
@@ -855,11 +967,20 @@
                         date: getFormattedDate(row.querySelector('.transactionDate.visible-date-input')),
                         newCertNo: row.querySelector('.transactionNewCertNo').value,
                         shares: row.querySelector('.transactionShares').value,
-                        nominalAmount: row.querySelector('.transactionNominalAmount')?.value || '', // MODIFIED
+                        nominalAmount: row.querySelector('.transactionNominalAmount')?.value || '',
                         details: row.querySelector('.transactionDetails').value
                     });
                 });
-                recordDiv.querySelectorAll('.transferred-transactions-container .transaction-row').forEach(row => shareholder.transferredTransactions.push({ date: getFormattedDate(row.querySelector('.transactionDate.visible-date-input')), newCertNo: row.querySelector('.transactionNewCertNo').value, shares: row.querySelector('.transactionShares').value, details: row.querySelector('.transactionDetails').value }));
+                recordDiv.querySelectorAll('.transferred-transactions-container .transaction-row').forEach(row =>
+                {
+                    shareholder.transferredTransactions.push({
+                        date: getFormattedDate(row.querySelector('.transactionDate.visible-date-input')),
+                        newCertNo: row.querySelector('.transactionNewCertNo').value,
+                        shares: row.querySelector('.transactionShares').value,
+                        consideration: row.querySelector('.transactionConsideration')?.value || '',
+                        details: row.querySelector('.transactionDetails').value
+                    });
+                });
                 shareholder.balance.shares = recordDiv.querySelector('.balanceShares').value;
                 shareholder.balance.certNos = recordDiv.querySelector('.balanceCertNos').value;
 
@@ -943,7 +1064,6 @@
         }
 
         // --- Summary and Validation ---
-        // (This section is unchanged, so it is omitted for brevity)
         function updateShareholdingSummary()
         {
             summaryTableBody.innerHTML = '';
@@ -1005,13 +1125,24 @@
 
         function prepareAndPrint(printClass)
         {
-            if (document.querySelector('#beneficialTab.active'))
-            {
-                renderBeneficialInterestTab(getCurrentStateData());
-            }
             document.body.className = printClass;
+            const style = document.createElement('style');
+            if (printClass === 'printing-cm42')
+            {
+                style.innerHTML = `@page { size: A4 portrait; margin: 1cm; }`;
+            } else
+            {
+                style.innerHTML = `@page { size: A4 landscape; margin: 0.5cm; }`;
+            }
+            document.head.appendChild(style);
+
             window.print();
-            setTimeout(() => { document.body.className = ''; }, 1000);
+
+            setTimeout(() =>
+            {
+                document.body.className = '';
+                document.head.removeChild(style);
+            }, 500);
         }
 
         // --- START: Certificate Generation and Modal Logic ---
@@ -1025,7 +1156,6 @@
                 return;
             }
 
-            // 1. Gather Data
             const companyName = document.getElementById('companyName').value || '[COMPANY NAME]';
             const companyRegNo = document.getElementById('companyRegNo').value || '[Registration Number]';
 
@@ -1045,13 +1175,11 @@
 
             const classOfShares = shareholderRecord.querySelector('.classOfShares')?.value || document.getElementById('companyClassOfShares').value || 'Ordinary - Par Value';
 
-            // MODIFIED: Get data from transaction row
             const date = getFormattedDate(transactionRow.querySelector('.transactionDate.visible-date-input')) || '[DATE]';
             const certificateNumber = transactionRow.querySelector('.transactionNewCertNo').value || '[CERT#]';
             const numberOfShares = parseInt(transactionRow.querySelector('.transactionShares').value) || 0;
             const nominalAmount = transactionRow.querySelector('.transactionNominalAmount')?.value || '';
 
-            // 2. Build HTML for the certificate
             const certificateHtml = `
                 <div class="cert-header-1">SHARE CERTIFICATE</div>
                 <div class="cert-header-2">${companyName}</div>
@@ -1078,7 +1206,7 @@
                         <tr>
                             <td class="name-address-cell">${nameAndAddress}</td>
                             <td style="text-align: center;">${classOfShares}</td>
-                            <td style="text-align: center;">${nominalAmount}</td> <!-- MODIFIED -->
+                            <td style="text-align: center;">${nominalAmount}</td>
                             <td style="text-align: center;">${date}</td>
                             <td style="text-align: center;">${certificateNumber}</td>
                             <td style="text-align: center;">${new Intl.NumberFormat().format(numberOfShares)}</td>
@@ -1090,29 +1218,146 @@
                     <div class="cert-director-label">DIRECTOR</div>
                 </div>
             `;
-
-            // 3. Inject HTML into the container and display the modal
             certificateContainer.innerHTML = certificateHtml;
             certificateModal.style.display = 'flex';
         }
 
-        document.getElementById('closeCertificateBtn').addEventListener('click', () =>
-        {
-            certificateModal.style.display = 'none';
-        });
+        document.getElementById('closeCertificateBtn').addEventListener('click', () => { certificateModal.style.display = 'none'; });
+        document.getElementById('printCertificateBtn').addEventListener('click', () => { prepareAndPrint('printing-certificate'); });
 
-        document.getElementById('printCertificateBtn').addEventListener('click', () =>
+        // --- START: NEW CM42 Generation and Modal Logic ---
+        function numberToWords(num)
         {
-            document.body.classList.add('printing-certificate');
-            window.print();
-            setTimeout(() => { document.body.classList.remove('printing-certificate'); }, 500);
-        });
-        // --- END: Certificate Generation and Modal Logic ---
+            const a = ['', 'one ', 'two ', 'three ', 'four ', 'five ', 'six ', 'seven ', 'eight ', 'nine ', 'ten ', 'eleven ', 'twelve ', 'thirteen ', 'fourteen ', 'fifteen ', 'sixteen ', 'seventeen ', 'eighteen ', 'nineteen '];
+            const b = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+            if ((num = num.toString()).length > 9) return 'overflow';
+            let n = ('000000000' + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+            if (!n) return; var str = '';
+            str += (n[1] != 0) ? (a[Number(n[1])] || b[n[1][0]] + ' ' + a[n[1][1]]) + 'crore ' : '';
+            str += (n[2] != 0) ? (a[Number(n[2])] || b[n[2][0]] + ' ' + a[n[2][1]]) + 'lakh ' : '';
+            str += (n[3] != 0) ? (a[Number(n[3])] || b[n[3][0]] + ' ' + a[n[3][1]]) + 'thousand ' : '';
+            str += (n[4] != 0) ? (a[Number(n[4])] || b[n[4][0]] + ' ' + a[n[4][1]]) + 'hundred ' : '';
+            str += (n[5] != 0) ? ((str != '') ? 'and ' : '') + (a[Number(n[5])] || b[n[5][0]] + ' ' + a[n[5][1]]) : '';
+            return str.trim().charAt(0).toUpperCase() + str.slice(1);
+        }
 
+        function populateTransfereeDetails(selectElement)
+        {
+            const selectedId = selectElement.value;
+            const transfereeData = cm42DataStore.find(item => item.id === selectedId);
+            const idInput = document.getElementById('cm42-transferee-id');
+            const addressInput = document.getElementById('cm42-transferee-address');
+            const emailInput = document.getElementById('cm42-transferee-email');
+
+            if (transfereeData)
+            {
+                idInput.value = transfereeData.idNumber || '';
+                addressInput.value = transfereeData.address || '';
+                emailInput.value = transfereeData.email || '';
+            } else
+            {
+                idInput.value = '';
+                addressInput.value = '';
+                emailInput.value = '';
+            }
+        }
+
+        function generateCM42(buttonElement)
+        {
+            const transactionRow = buttonElement.closest('.transaction-row');
+            const shareholderRecord = buttonElement.closest('.shareholder-record');
+            if (!transactionRow || !shareholderRecord)
+            {
+                alert('Could not find required record data.');
+                return;
+            }
+
+            cm42DataStore = [];
+            cm42DataStore.push({
+                id: 'company',
+                name: document.getElementById('companyName').value || '[Company Name]',
+                idNumber: document.getElementById('companyRegNo').value || '',
+                address: document.getElementById('companyAddressTextarea').value || '',
+                email: ''
+            });
+            document.querySelectorAll('#shareholderRegister .shareholder-record').forEach(recordDiv =>
+            {
+                const recordType = recordDiv.dataset.recordType;
+                let name, idNumber;
+                if (recordType === 'natural')
+                {
+                    name = `${recordDiv.querySelector('.firstName')?.value || ''} ${recordDiv.querySelector('.surname')?.value || ''}`.trim();
+                    idNumber = recordDiv.querySelector('.idNumber')?.value || '';
+                } else
+                {
+                    name = recordDiv.querySelector('.ownerName')?.value || '';
+                    idNumber = recordDiv.querySelector('.registrationNumber')?.value || '';
+                }
+                cm42DataStore.push({
+                    id: recordDiv.dataset.id,
+                    name: name || 'Unnamed Record',
+                    idNumber: idNumber,
+                    address: recordDiv.querySelector('.ownerAddress')?.value || '',
+                    email: recordDiv.querySelector('.ownerEmail')?.value || ''
+                });
+            });
+
+            const transferorSelect = document.getElementById('cm42-transferor-name');
+            const transfereeSelect = document.getElementById('cm42-transferee-name');
+            transferorSelect.innerHTML = '';
+            transfereeSelect.innerHTML = '<option value="">-- Select Transferee --</option>';
+
+            cm42DataStore.forEach(item =>
+            {
+                const option = `<option value="${item.id}">${item.name}</option>`;
+                transferorSelect.insertAdjacentHTML('beforeend', option);
+                transfereeSelect.insertAdjacentHTML('beforeend', option);
+            });
+
+            const transferorId = shareholderRecord.dataset.id;
+            const transferorData = cm42DataStore.find(item => item.id === transferorId);
+
+            document.getElementById('cm42-issuer-name').value = document.getElementById('companyName').value;
+            document.getElementById('cm42-security-description').value = shareholderRecord.querySelector('.classOfShares')?.value || document.getElementById('companyClassOfShares').value;
+            document.getElementById('cm42-certificate-numbers').value = shareholderRecord.querySelector('.balanceCertNos').value;
+            const quantity = transactionRow.querySelector('.transactionShares').value || 0;
+            document.getElementById('cm42-quantity-figures').value = quantity;
+            document.getElementById('cm42-quantity-words').value = numberToWords(quantity);
+
+            transferorSelect.value = transferorId;
+            transferorSelect.disabled = true;
+            document.getElementById('cm42-transferor-id').value = transferorData ? transferorData.idNumber : '';
+
+            transfereeSelect.value = "";
+            populateTransfereeDetails(transfereeSelect);
+
+            document.getElementById('cm42-consideration-amount').value = transactionRow.querySelector('.transactionConsideration').value || '';
+            document.getElementById('cm42-transaction-date').value = getFormattedDate(transactionRow.querySelector('.transactionDate.visible-date-input'));
+
+            cm42Modal.style.display = 'flex';
+        }
+
+        document.getElementById('cm42-transferee-name').addEventListener('change', (e) => populateTransfereeDetails(e.target));
+
+        document.getElementById('closeCm42Btn').addEventListener('click', () =>
+        {
+            cm42Modal.style.display = 'none';
+            document.getElementById('cm42-transferor-name').disabled = false;
+        });
+        document.getElementById('printCm42Btn').addEventListener('click', () => { prepareAndPrint('printing-cm42'); });
+
+        document.getElementById('cm42-consideration-amount').addEventListener('blur', formatCm42Currency);
 
         // --- Initial calls on page load ---
-        validateTotalIssuedShares();
-        updateShareholdingSummary();
+        document.addEventListener('DOMContentLoaded', function ()
+        {
+            flatpickr("#cm42Container .date-input", {
+                dateFormat: "d/m/Y",
+            });
+
+            validateTotalIssuedShares();
+            updateShareholdingSummary();
+        });
     </script>
 </body>
 
