@@ -1163,8 +1163,8 @@ h2 {
     }
 
     body.printing-cm42 #cm42Container .form-section {
-        background-color: #fff !important;
-        border: 1px solid #ccc;
+        background-color: #e9e7e7 !important;
+        border: 1px solid black;
         padding: 10px 15px;
         margin-bottom: 12px !important;
     }
