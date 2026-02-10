@@ -726,13 +726,16 @@
         {
             if (!shareholderRecordDiv) return;
             let totalAcquired = 0, totalTransferred = 0;
-            shareholderRecordDiv.querySelectorAll('.acquired-transactions-container .transactionShares').forEach(input => totalAcquired += parseInt(input.value) || 0);
-            shareholderRecordDiv.querySelectorAll('.transferred-transactions-container .transactionShares').forEach(input => totalTransferred += parseInt(input.value) || 0);
+            shareholderRecordDiv.querySelectorAll('.acquired-transactions-container .transactionShares').forEach(input => totalAcquired += parseFloat(input.value) || 0);
+            shareholderRecordDiv.querySelectorAll('.transferred-transactions-container .transactionShares').forEach(input => totalTransferred += parseFloat(input.value) || 0);
             const balanceSharesInput = shareholderRecordDiv.querySelector('.balanceShares');
             const newBalance = Math.max(0, totalAcquired - totalTransferred);
-            if (balanceSharesInput.value !== String(newBalance))
+            // Show up to 2 decimals if needed
+            // Always show 2 decimals for shares
+            const newBalanceStr = newBalance.toFixed(2);
+            if (balanceSharesInput.value !== String(newBalanceStr))
             {
-                balanceSharesInput.value = newBalance;
+                balanceSharesInput.value = newBalanceStr;
                 updateShareholdingSummary();
             }
         }
@@ -869,7 +872,7 @@
                 recordBody.className = 'record-body info-grid';
                 recordDiv.appendChild(recordBody);
 
-                const balanceShares = parseInt(shareholder.balance.shares) || 0;
+                const balanceShares = parseFloat(shareholder.balance.shares) || 0;
                 let percentage = (companyTotalIssuedShares > 0 && balanceShares > 0) ? ((balanceShares / companyTotalIssuedShares) * 100).toFixed(2) : 0;
 
                 recordBody.appendChild(createBeneficialFormGroup('firstName', id, 'First Name', 'text', ownerInfo.firstName, { readonly: true }));
@@ -1080,7 +1083,7 @@
                 ownerName = ownerName || 'N/A';
 
                 const classOfShares = recordDiv.querySelector('.classOfShares')?.value || defaultCompanyClassOfShares;
-                const balanceShares = parseInt(recordDiv.querySelector('.balanceShares')?.value) || 0;
+                const balanceShares = parseFloat(recordDiv.querySelector('.balanceShares')?.value) || 0;
                 grandTotalSharesHeld += balanceShares;
                 let percentage = (companyTotalIssuedShares > 0 && balanceShares > 0) ? (balanceShares / companyTotalIssuedShares) * 100 : 0;
 
@@ -1088,7 +1091,7 @@
                 row.insertCell().textContent = ownerName;
                 row.insertCell(1).textContent = classOfShares;
                 row.insertCell(2).textContent = percentage.toFixed(2) + '%';
-                row.insertCell(3).textContent = balanceShares;
+                row.insertCell(3).textContent = balanceShares.toFixed(2);
                 row.cells[1].className = 'class-of-shares-col';
                 row.cells[2].className = 'percentage-col';
                 row.cells[3].className = 'shares-col';
@@ -1178,7 +1181,7 @@
 
             const date = getFormattedDate(transactionRow.querySelector('.transactionDate.visible-date-input')) || '[DATE]';
             const certificateNumber = transactionRow.querySelector('.transactionNewCertNo').value || '[CERT#]';
-            const numberOfShares = parseInt(transactionRow.querySelector('.transactionShares').value) || 0;
+            const numberOfShares = parseFloat(transactionRow.querySelector('.transactionShares').value) || 0;
             const nominalAmount = transactionRow.querySelector('.transactionNominalAmount')?.value || '';
 
             const certificateHtml = `
