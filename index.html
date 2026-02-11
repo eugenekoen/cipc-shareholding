@@ -328,12 +328,21 @@
         const certificateContainer = document.getElementById('certificateContainer');
         const cm42Modal = document.getElementById('cm42Modal');
         let cm42DataStore = [];
+        // In-memory store for manually added beneficial owners
+        let manualBeneficialOwnersStore = [];
 
         // --- Print Buttons ---
         document.getElementById('printAllBtn').addEventListener('click', () => prepareAndPrint('printing-all'));
         document.getElementById('printRegisterBtn').addEventListener('click', () => prepareAndPrint('printing-register'));
         document.getElementById('printSummaryBtn').addEventListener('click', () => prepareAndPrint('printing-summary'));
-        document.getElementById('printBeneficialBtn').addEventListener('click', () => prepareAndPrint('printing-beneficial'));
+        document.getElementById('printBeneficialBtn').addEventListener('click', () =>
+        {
+            // Ensure beneficial tab is rendered with latest data before printing
+            syncManualOwnersFromDOM();
+            const data = getCurrentStateData();
+            renderBeneficialInterestTab(data);
+            prepareAndPrint('printing-beneficial');
+        });
 
         // --- Bulk Action Buttons ---
         document.getElementById('expandAllBtn').addEventListener('click', () =>
@@ -361,6 +370,9 @@
         // --- Tab Management ---
         function switchTab(tabId)
         {
+            // Sync manual owners from DOM before switching away from beneficial tab
+            syncManualOwnersFromDOM();
+
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
 
@@ -829,6 +841,208 @@
             }
         }
 
+        // --- Manual Natural Person Beneficial Owner Functions ---
+        function showAddNaturalPersonDialog()
+        {
+            console.log('showAddNaturalPersonDialog called');
+            const dialog = document.createElement('div');
+            dialog.className = 'modal-overlay';
+            dialog.id = 'addNaturalPersonDialog';
+            dialog.style.display = 'flex';
+            dialog.innerHTML = `
+                <div class="modal-content" style="width: 600px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2 style="margin: 0;">Add Natural Person Beneficial Owner</h2>
+                        <button type="button" class="closeBtn" onclick="document.getElementById('addNaturalPersonDialog').remove()" style="background: none; border: none; font-size: 24px; cursor: pointer;">×</button>
+                    </div>
+                    <div id="addPersonForm" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                        <div class="form-group">
+                            <label for="addPerson_firstName">First Name:</label>
+                            <input type="text" id="addPerson_firstName" placeholder="Enter first name">
+                        </div>
+                        <div class="form-group">
+                            <label for="addPerson_surname">Surname:</label>
+                            <input type="text" id="addPerson_surname" placeholder="Enter surname">
+                        </div>
+                        <div class="form-group">
+                            <label for="addPerson_dateOfBirth">Date of Birth:</label>
+                            <div class="date-input-group">
+                                <input type="text" id="addPerson_dateOfBirth" class="visible-date-input" placeholder="DD/MM/YYYY">
+                                <button type="button" class="date-picker-trigger" onclick="showDatePicker(this)"></button>
+                                <input type="date" class="hidden-date-input" onchange="updateVisibleDate(this)">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="addPerson_idNumber">ID/Passport Number:</label>
+                            <input type="text" id="addPerson_idNumber" placeholder="Enter ID number">
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label for="addPerson_email">Email:</label>
+                            <input type="email" id="addPerson_email" placeholder="Enter email address">
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label for="addPerson_address">Address:</label>
+                            <textarea id="addPerson_address" placeholder="Enter address" rows="4"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="addPerson_saCitizen">South African Citizen?</label>
+                            <select id="addPerson_saCitizen">
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="addPerson_interestType">Interest Type:</label>
+                            <select id="addPerson_interestType">
+                                <option value="">Select...</option>
+                                <option value="Voting Right">Voting Right</option>
+                                <option value="Shareholding/Beneficial Ownership">Shareholding/Beneficial Ownership</option>
+                                <option value="Appointment of Board">Appointment of Board</option>
+                                <option value="Other influence or Control">Other influence or Control</option>
+                                <option value="Trustee of a Trust">Trustee of a Trust</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="addPerson_ownershipPercentage">Shareholding/Beneficial Ownership (%):</label>
+                            <input type="number" id="addPerson_ownershipPercentage" placeholder="Enter percentage" min="0" max="100" step="0.01">
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                        <button type="button" class="bulk-action-btn" onclick="document.getElementById('addNaturalPersonDialog').remove()">Cancel</button>
+                        <button type="button" class="bulk-action-btn" style="background-color: #28a745; color: white;" onclick="saveAddedNaturalPerson()">Add Person</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(dialog);
+            console.log('Dialog appended to body, display:', dialog.style.display);
+        }
+
+        function saveAddedNaturalPerson()
+        {
+            const firstName = document.getElementById('addPerson_firstName').value.trim();
+            const surname = document.getElementById('addPerson_surname').value.trim();
+            const dateOfBirth = document.getElementById('addPerson_dateOfBirth').value.trim();
+            const idNumber = document.getElementById('addPerson_idNumber').value.trim();
+            const email = document.getElementById('addPerson_email').value.trim();
+            const address = document.getElementById('addPerson_address').value.trim();
+            const saCitizen = document.getElementById('addPerson_saCitizen').value;
+            const interestType = document.getElementById('addPerson_interestType').value;
+            const ownershipPercentage = document.getElementById('addPerson_ownershipPercentage').value;
+
+            if (!firstName || !surname)
+            {
+                alert('Please enter at least First Name and Surname');
+                return;
+            }
+
+            const newOwner = {
+                id: 'manual_' + Date.now(),
+                firstName,
+                surname,
+                dateOfBirth,
+                idNumber,
+                email,
+                address,
+                saCitizen,
+                interestType,
+                ownershipPercentage: ownershipPercentage || '0'
+            };
+
+            // Add to in-memory store
+            manualBeneficialOwnersStore.push(newOwner);
+
+            // Re-render the beneficial tab
+            const data = getCurrentStateData();
+            renderBeneficialInterestTab(data);
+
+            // Close dialog
+            document.getElementById('addNaturalPersonDialog').remove();
+            alert('Natural Person Beneficial Owner added successfully!');
+        }
+
+        function renderManualBeneficialOwner(container, owner, companyTotalIssuedShares)
+        {
+            const id = owner.id;
+            const recordDiv = document.createElement('div');
+            recordDiv.className = 'info-record';
+            recordDiv.dataset.id = id;
+            recordDiv.dataset.isManual = 'true';
+
+            const header = document.createElement('div');
+            header.className = 'info-record-header';
+            header.innerHTML = `
+                <span>Beneficial Owner (Manual): ${owner.firstName || ''} ${owner.surname || ''}</span>
+                <div style="display: flex; gap: 10px;">
+                    <button class="collapse-beneficial-btn" onclick="toggleBeneficialCollapse(this)">▲ Collapse</button>
+                    <button type="button" class="deleteRecordBtn" onclick="deleteManualBeneficialOwner('${id}')" style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Delete</button>
+                </div>
+            `;
+            recordDiv.appendChild(header);
+
+            const recordBody = document.createElement('div');
+            recordBody.className = 'record-body info-grid';
+            recordDiv.appendChild(recordBody);
+
+            recordBody.appendChild(createBeneficialFormGroup('firstName', id, 'First Name', 'text', owner.firstName));
+            recordBody.appendChild(createBeneficialFormGroup('surname', id, 'Surname', 'text', owner.surname));
+            recordBody.appendChild(createBeneficialFormGroup('dateOfBirth', id, 'Date of Birth', 'date', owner.dateOfBirth));
+            recordBody.appendChild(createBeneficialFormGroup('idNumber', id, 'ID/Passport Number', 'text', owner.idNumber));
+            recordBody.appendChild(createBeneficialFormGroup('saCitizen', id, 'Are you a South African Citizen?', 'select', owner.saCitizen || 'Yes', { choices: [{ value: 'Yes', text: 'Yes' }, { value: 'No', text: 'No' }] }));
+            recordBody.appendChild(createBeneficialFormGroup('issueDate', id, 'ID/Passport Issue Date', 'date', owner.issueDate || ''));
+            recordBody.appendChild(createBeneficialFormGroup('email', id, 'Email', 'text', owner.email));
+            recordBody.appendChild(createBeneficialFormGroup('mobile', id, 'Mobile Number', 'text', owner.mobile || ''));
+            recordBody.appendChild(createBeneficialFormGroup('taxNumber', id, 'Personal Income Tax Number', 'text', owner.taxNumber || ''));
+            recordBody.appendChild(createBeneficialFormGroup('demographic', id, 'Demographic', 'select', owner.demographic || '', { choices: [{ value: '', text: 'Select...' }, { value: 'Black', text: 'Black' }, { value: 'Coloured', text: 'Coloured' }, { value: 'Asian', text: 'Asian' }, { value: 'White', text: 'White' }, { value: 'Indian', text: 'Indian' }] }));
+            recordBody.appendChild(createBeneficialFormGroup('gender', id, 'Gender', 'select', owner.gender || '', { choices: [{ value: '', text: 'Select...' }, { value: 'Male', text: 'Male' }, { value: 'Female', text: 'Female' }] }));
+            recordBody.appendChild(createBeneficialFormGroup('disability', id, 'Disability', 'select', owner.disability || 'Not Disabled', { choices: [{ value: 'Disabled', text: 'Disabled' }, { value: 'Not Disabled', text: 'Not Disabled' }] }));
+            recordBody.appendChild(createBeneficialFormGroup('residenceCountry', id, 'Country of Residence', 'text', owner.residenceCountry || ''));
+            recordBody.appendChild(createBeneficialFormGroup('originCountry', id, 'Country of Origin', 'text', owner.originCountry || ''));
+            recordBody.appendChild(createBeneficialFormGroup('interestType', id, 'Interest Type', 'select', owner.interestType || '', { choices: [{ value: '', text: 'Select...' }, { value: 'Voting Right', text: 'Voting Right' }, { value: 'Shareholding/Beneficial Ownership', text: 'Shareholding/Beneficial Ownership' }, { value: 'Appointment of Board', text: 'Appointment of Board' }, { value: 'Other influence or Control', text: 'Other influence or Control' }, { value: 'Trustee of a Trust', text: 'Trustee of a Trust' }] }));
+            recordBody.appendChild(createBeneficialFormGroup('ownershipPercentage', id, 'Shareholding/Beneficial Ownership (%)', 'text', owner.ownershipPercentage || '0'));
+            recordBody.appendChild(createBeneficialFormGroup('address', id, 'Address', 'textarea', owner.address || ''));
+
+            container.appendChild(recordDiv);
+        }
+
+        // Sync any edits the user made in the beneficial tab DOM back to the in-memory store
+        function syncManualOwnersFromDOM()
+        {
+            manualBeneficialOwnersStore.forEach(owner =>
+            {
+                const id = owner.id;
+                const el = document.getElementById(`ben_firstName_${id}`);
+                if (!el) return; // DOM not rendered, skip
+                owner.firstName = getValueFromBeneficialTab(`ben_firstName_${id}`);
+                owner.surname = getValueFromBeneficialTab(`ben_surname_${id}`);
+                owner.dateOfBirth = getValueFromBeneficialTab(`ben_dateOfBirth_${id}`);
+                owner.idNumber = getValueFromBeneficialTab(`ben_idNumber_${id}`);
+                owner.saCitizen = getValueFromBeneficialTab(`ben_saCitizen_${id}`);
+                owner.issueDate = getValueFromBeneficialTab(`ben_issueDate_${id}`);
+                owner.email = getValueFromBeneficialTab(`ben_email_${id}`);
+                owner.mobile = getValueFromBeneficialTab(`ben_mobile_${id}`);
+                owner.taxNumber = getValueFromBeneficialTab(`ben_taxNumber_${id}`);
+                owner.demographic = getValueFromBeneficialTab(`ben_demographic_${id}`);
+                owner.gender = getValueFromBeneficialTab(`ben_gender_${id}`);
+                owner.disability = getValueFromBeneficialTab(`ben_disability_${id}`);
+                owner.residenceCountry = getValueFromBeneficialTab(`ben_residenceCountry_${id}`);
+                owner.originCountry = getValueFromBeneficialTab(`ben_originCountry_${id}`);
+                owner.interestType = getValueFromBeneficialTab(`ben_interestType_${id}`);
+                owner.ownershipPercentage = getValueFromBeneficialTab(`ben_ownershipPercentage_${id}`);
+                owner.address = getValueFromBeneficialTab(`ben_address_${id}`);
+            });
+        }
+
+        function deleteManualBeneficialOwner(ownerId)
+        {
+            if (confirm('Are you sure you want to delete this beneficial owner?'))
+            {
+                manualBeneficialOwnersStore = manualBeneficialOwnersStore.filter(o => o.id !== ownerId);
+                const data = getCurrentStateData();
+                renderBeneficialInterestTab(data);
+                alert('Beneficial owner deleted successfully');
+            }
+        }
+
         function renderBeneficialInterestTab(data)
         {
             const container = document.getElementById('beneficialTab');
@@ -839,15 +1053,35 @@
             bulkActions.innerHTML = `
                 <button type="button" class="bulk-action-btn" id="expandAllBeneficialBtn">Expand All</button>
                 <button type="button" class="bulk-action-btn" id="collapseAllBeneficialBtn">Collapse All</button>
+                <button type="button" class="bulk-action-btn" id="addNaturalPersonBeneficialBtn" style="background-color: #28a745; color: white;">+ Add Natural Person</button>
             `;
             container.appendChild(bulkActions);
 
+            // Attach event listeners immediately - before any early returns
+            document.getElementById('expandAllBeneficialBtn').addEventListener('click', () =>
+            {
+                document.querySelectorAll('#beneficialTab .info-record').forEach(rec => setBeneficialCollapseState(rec, true));
+            });
+            document.getElementById('collapseAllBeneficialBtn').addEventListener('click', () =>
+            {
+                document.querySelectorAll('#beneficialTab .info-record').forEach(rec => setBeneficialCollapseState(rec, false));
+            });
+            document.getElementById('addNaturalPersonBeneficialBtn').addEventListener('click', () =>
+            {
+                console.log('Add Natural Person button clicked');
+                showAddNaturalPersonDialog();
+            });
+
             const companyTotalIssuedShares = parseInt(data.companyDetails.totalSharesIssued) || 0;
             const naturalPersons = data.shareholders.filter(sh => sh.ownerDetails.recordType === 'natural');
+            const manualBeneficialOwners = manualBeneficialOwnersStore;
 
-            if (naturalPersons.length === 0)
+            if (naturalPersons.length === 0 && manualBeneficialOwners.length === 0)
             {
-                container.innerHTML += '<p id="noDataMessage">No Natural Person records found. Add them on the "Shareholder Register" tab first.</p>';
+                const noDataMsg = document.createElement('p');
+                noDataMsg.id = 'noDataMessage';
+                noDataMsg.textContent = 'No Natural Person records found. Add them on the "Shareholder Register" tab first or use the "Add Natural Person" button above.';
+                container.appendChild(noDataMsg);
                 return;
             }
 
@@ -890,21 +1124,19 @@
                 recordBody.appendChild(createBeneficialFormGroup('residenceCountry', id, 'Country of Residence', 'text', beneficialInfo.residenceCountry));
                 recordBody.appendChild(createBeneficialFormGroup('originCountry', id, 'Country of Origin', 'text', beneficialInfo.originCountry));
                 recordBody.appendChild(createBeneficialFormGroup('dateOfInterest', id, 'Date of Interest Type', 'date', ownerInfo.dateOfEntry, { readonly: true }));
-                recordBody.appendChild(createBeneficialFormGroup('interestType', id, 'Interest Type', 'select', beneficialInfo.interestType, { choices: [{ value: '', text: 'Select...' }, { value: 'Voting Right', text: 'Voting Right' }, { value: 'Shareholding/Beneficial Ownership', text: 'Shareholding/Beneficial Ownership' }, { value: 'Appointment of Board', text: 'Appointment of Board' }, { value: 'Other influence or Control', text: 'Other influence or Control' }] }));
+                recordBody.appendChild(createBeneficialFormGroup('interestType', id, 'Interest Type', 'select', beneficialInfo.interestType, { choices: [{ value: '', text: 'Select...' }, { value: 'Voting Right', text: 'Voting Right' }, { value: 'Shareholding/Beneficial Ownership', text: 'Shareholding/Beneficial Ownership' }, { value: 'Appointment of Board', text: 'Appointment of Board' }, { value: 'Other influence or Control', text: 'Other influence or Control' }, { value: 'Trustee of a Trust', text: 'Trustee of a Trust' }] }));
                 recordBody.appendChild(createBeneficialFormGroup('ownershipPercentage', id, 'Shareholding/Beneficial Ownership (%)', 'text', percentage, { readonly: true }));
                 recordBody.appendChild(createBeneficialFormGroup('address', id, 'Address', 'textarea', ownerInfo.address, { readonly: true }));
 
                 container.appendChild(recordDiv);
             });
 
-            document.getElementById('expandAllBeneficialBtn').addEventListener('click', () =>
+            // Render manual beneficial owners
+            manualBeneficialOwners.forEach(owner =>
             {
-                document.querySelectorAll('#beneficialTab .info-record').forEach(rec => setBeneficialCollapseState(rec, true));
+                renderManualBeneficialOwner(container, owner, companyTotalIssuedShares);
             });
-            document.getElementById('collapseAllBeneficialBtn').addEventListener('click', () =>
-            {
-                document.querySelectorAll('#beneficialTab .info-record').forEach(rec => setBeneficialCollapseState(rec, false));
-            });
+
         }
 
         // --- Config Save/Load and Data Management ---
@@ -1007,6 +1239,11 @@
 
                 data.shareholders.push(shareholder);
             });
+
+            // Sync any edits from DOM back to in-memory store before returning
+            syncManualOwnersFromDOM();
+            data.manualBeneficialOwners = JSON.parse(JSON.stringify(manualBeneficialOwnersStore));
+
             return data;
         }
 
@@ -1054,8 +1291,16 @@
                             addShareholderRecord(recordType, shareholderData);
                         });
                     }
+
+                    // Load manual beneficial owners into in-memory store
+                    manualBeneficialOwnersStore = (data.manualBeneficialOwners && Array.isArray(data.manualBeneficialOwners)) ? data.manualBeneficialOwners : [];
+
                     validateTotalIssuedShares();
                     updateShareholdingSummary();
+
+                    // Re-render beneficial tab with loaded data
+                    renderBeneficialInterestTab(data);
+
                     alert('Configuration loaded successfully!');
                 } catch (error)
                 {
