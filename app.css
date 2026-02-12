@@ -1011,6 +1011,13 @@ h2 {
         display: none !important;
     }
 
+    /* Hide zero-shares records during printing */
+    body.printing-register .shareholder-record.zero-shares,
+    body.printing-all .shareholder-record.zero-shares,
+    body.printing-beneficial .info-record.zero-shares {
+        display: none !important;
+    }
+
     body.printing-summary #registerTab,
     body.printing-summary #beneficialTab {
         display: none !important;

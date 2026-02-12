@@ -622,6 +622,12 @@
                 if (data.acquiredTransactions) data.acquiredTransactions.forEach(txData => addTransactionRow(newRecordDiv.querySelector('.add-transaction-btn[onclick*="acquired"]'), 'acquired', txData));
                 if (data.transferredTransactions) data.transferredTransactions.forEach(txData => addTransactionRow(newRecordDiv.querySelector('.add-transaction-btn[onclick*="transferred"]'), 'transferred', txData));
                 newRecordDiv.querySelector('.balanceShares').value = data.balance.shares || 0;
+                // Mark with zero-shares class if balance is 0
+                const balanceShares = parseFloat(data.balance.shares) || 0;
+                if (balanceShares === 0)
+                {
+                    newRecordDiv.classList.add('zero-shares');
+                }
                 newRecordDiv.querySelector('.balanceCertNos').value = data.balance.certNos || '';
             } else
             {
@@ -748,6 +754,14 @@
             if (balanceSharesInput.value !== String(newBalanceStr))
             {
                 balanceSharesInput.value = newBalanceStr;
+                // Mark record with zero-shares class if balance is 0
+                if (newBalance === 0)
+                {
+                    shareholderRecordDiv.classList.add('zero-shares');
+                } else
+                {
+                    shareholderRecordDiv.classList.remove('zero-shares');
+                }
                 updateShareholdingSummary();
             }
         }
@@ -1094,6 +1108,13 @@
                 recordDiv.className = 'info-record';
                 recordDiv.dataset.id = id;
 
+                const balanceShares = parseFloat(shareholder.balance.shares) || 0;
+                // Mark with zero-shares class if balance is 0
+                if (balanceShares === 0)
+                {
+                    recordDiv.classList.add('zero-shares');
+                }
+
                 const header = document.createElement('div');
                 header.className = 'info-record-header';
                 header.innerHTML = `
@@ -1106,7 +1127,6 @@
                 recordBody.className = 'record-body info-grid';
                 recordDiv.appendChild(recordBody);
 
-                const balanceShares = parseFloat(shareholder.balance.shares) || 0;
                 let percentage = (companyTotalIssuedShares > 0 && balanceShares > 0) ? ((balanceShares / companyTotalIssuedShares) * 100).toFixed(2) : 0;
 
                 recordBody.appendChild(createBeneficialFormGroup('firstName', id, 'First Name', 'text', ownerInfo.firstName, { readonly: true }));
@@ -1329,17 +1349,31 @@
 
                 const classOfShares = recordDiv.querySelector('.classOfShares')?.value || defaultCompanyClassOfShares;
                 const balanceShares = parseFloat(recordDiv.querySelector('.balanceShares')?.value) || 0;
-                grandTotalSharesHeld += balanceShares;
-                let percentage = (companyTotalIssuedShares > 0 && balanceShares > 0) ? (balanceShares / companyTotalIssuedShares) * 100 : 0;
 
-                const row = summaryTableBody.insertRow();
-                row.insertCell().textContent = ownerName;
-                row.insertCell(1).textContent = classOfShares;
-                row.insertCell(2).textContent = percentage.toFixed(2) + '%';
-                row.insertCell(3).textContent = balanceShares.toFixed(2);
-                row.cells[1].className = 'class-of-shares-col';
-                row.cells[2].className = 'percentage-col';
-                row.cells[3].className = 'shares-col';
+                // Update zero-shares class
+                if (balanceShares === 0)
+                {
+                    recordDiv.classList.add('zero-shares');
+                } else
+                {
+                    recordDiv.classList.remove('zero-shares');
+                }
+
+                // Only include in summary if shares > 0
+                if (balanceShares > 0)
+                {
+                    grandTotalSharesHeld += balanceShares;
+                    let percentage = (companyTotalIssuedShares > 0) ? (balanceShares / companyTotalIssuedShares) * 100 : 0;
+
+                    const row = summaryTableBody.insertRow();
+                    row.insertCell().textContent = ownerName;
+                    row.insertCell(1).textContent = classOfShares;
+                    row.insertCell(2).textContent = percentage.toFixed(2) + '%';
+                    row.insertCell(3).textContent = balanceShares.toFixed(2);
+                    row.cells[1].className = 'class-of-shares-col';
+                    row.cells[2].className = 'percentage-col';
+                    row.cells[3].className = 'shares-col';
+                }
             });
 
             summaryTotalSharesHeldEl.textContent = grandTotalSharesHeld;
