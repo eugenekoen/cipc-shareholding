@@ -1013,8 +1013,7 @@ h2 {
 
     /* Hide zero-shares records during printing */
     body.printing-register .shareholder-record.zero-shares,
-    body.printing-all .shareholder-record.zero-shares,
-    body.printing-beneficial .info-record.zero-shares {
+    body.printing-all .shareholder-record.zero-shares {
         display: none !important;
     }
 

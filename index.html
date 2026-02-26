@@ -340,8 +340,10 @@
             // Ensure beneficial tab is rendered with latest data before printing
             syncManualOwnersFromDOM();
             const data = getCurrentStateData();
-            renderBeneficialInterestTab(data);
+            renderBeneficialInterestTab(data, true);
             prepareAndPrint('printing-beneficial');
+            // Re-render without print filtering so all owners are visible again
+            setTimeout(() => { renderBeneficialInterestTab(getCurrentStateData(), false); }, 600);
         });
 
         // --- Bulk Action Buttons ---
@@ -1057,7 +1059,7 @@
             }
         }
 
-        function renderBeneficialInterestTab(data)
+        function renderBeneficialInterestTab(data, isPrinting)
         {
             const container = document.getElementById('beneficialTab');
             container.innerHTML = '<h3>Beneficial Interest Register</h3>'; // Add heading
@@ -1104,17 +1106,22 @@
                 const ownerInfo = shareholder.ownerDetails;
                 const beneficialInfo = shareholder.beneficialInfo || {};
                 const id = shareholder.id;
+                const balanceShares = parseFloat(shareholder.balance.shares) || 0;
+                const interestType = beneficialInfo.interestType || '';
+
+                // When printing, skip zero-shareholding owners unless their Interest Type is 'Trustee of a Trust'
+                if (isPrinting && balanceShares === 0 && interestType !== 'Trustee of a Trust')
+                {
+                    return;
+                }
+
                 const recordDiv = document.createElement('div');
                 recordDiv.className = 'info-record';
                 recordDiv.dataset.id = id;
-
-                const balanceShares = parseFloat(shareholder.balance.shares) || 0;
-                // Mark with zero-shares class if balance is 0
-                if (balanceShares === 0)
+                if (balanceShares === 0 && interestType !== 'Trustee of a Trust')
                 {
                     recordDiv.classList.add('zero-shares');
                 }
-
                 const header = document.createElement('div');
                 header.className = 'info-record-header';
                 header.innerHTML = `
@@ -1122,13 +1129,10 @@
                     <button class="collapse-beneficial-btn" onclick="toggleBeneficialCollapse(this)">▲ Collapse</button>
                 `;
                 recordDiv.appendChild(header);
-
                 const recordBody = document.createElement('div');
                 recordBody.className = 'record-body info-grid';
                 recordDiv.appendChild(recordBody);
-
                 let percentage = (companyTotalIssuedShares > 0 && balanceShares > 0) ? ((balanceShares / companyTotalIssuedShares) * 100).toFixed(2) : 0;
-
                 recordBody.appendChild(createBeneficialFormGroup('firstName', id, 'First Name', 'text', ownerInfo.firstName, { readonly: true }));
                 recordBody.appendChild(createBeneficialFormGroup('surname', id, 'Surname', 'text', ownerInfo.surname, { readonly: true }));
                 recordBody.appendChild(createBeneficialFormGroup('dateOfBirth', id, 'Date of Birth', 'date', ownerInfo.dateOfBirth, { isLinked: true }));
@@ -1147,13 +1151,19 @@
                 recordBody.appendChild(createBeneficialFormGroup('interestType', id, 'Interest Type', 'select', beneficialInfo.interestType, { choices: [{ value: '', text: 'Select...' }, { value: 'Voting Right', text: 'Voting Right' }, { value: 'Shareholding/Beneficial Ownership', text: 'Shareholding/Beneficial Ownership' }, { value: 'Appointment of Board', text: 'Appointment of Board' }, { value: 'Other influence or Control', text: 'Other influence or Control' }, { value: 'Trustee of a Trust', text: 'Trustee of a Trust' }] }));
                 recordBody.appendChild(createBeneficialFormGroup('ownershipPercentage', id, 'Shareholding/Beneficial Ownership (%)', 'text', percentage, { readonly: true }));
                 recordBody.appendChild(createBeneficialFormGroup('address', id, 'Address', 'textarea', ownerInfo.address, { readonly: true }));
-
                 container.appendChild(recordDiv);
             });
 
             // Render manual beneficial owners
             manualBeneficialOwners.forEach(owner =>
             {
+                const ownerPercentage = parseFloat(owner.ownershipPercentage) || 0;
+                const ownerInterestType = owner.interestType || '';
+                // When printing, skip zero-shareholding manual owners unless their Interest Type is 'Trustee of a Trust'
+                if (isPrinting && ownerPercentage === 0 && ownerInterestType !== 'Trustee of a Trust')
+                {
+                    return;
+                }
                 renderManualBeneficialOwner(container, owner, companyTotalIssuedShares);
             });
 
