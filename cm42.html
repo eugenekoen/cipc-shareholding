@@ -197,6 +197,33 @@
                 padding: 15px;
             }
 
+            /* Hide placeholders in print/PDF output */
+            input::placeholder,
+            textarea::placeholder {
+                color: transparent !important;
+                opacity: 0 !important;
+                -webkit-text-fill-color: transparent !important;
+            }
+
+            input::-webkit-input-placeholder,
+            textarea::-webkit-input-placeholder {
+                color: transparent !important;
+                opacity: 0 !important;
+                -webkit-text-fill-color: transparent !important;
+            }
+
+            input::-moz-placeholder,
+            textarea::-moz-placeholder {
+                color: transparent !important;
+                opacity: 0 !important;
+            }
+
+            input:-ms-input-placeholder,
+            textarea:-ms-input-placeholder {
+                color: transparent !important;
+                opacity: 0 !important;
+            }
+
             .disclaimer {
                 display: none;
             }
@@ -358,6 +385,27 @@
             {
                 considerationInput.addEventListener('blur', formatAsCurrency);
             }
+
+            window.addEventListener('beforeprint', () =>
+            {
+                document.querySelectorAll('input[placeholder], textarea[placeholder]').forEach(el =>
+                {
+                    if (!el.hasAttribute('data-orig-placeholder'))
+                    {
+                        el.setAttribute('data-orig-placeholder', el.getAttribute('placeholder') || '');
+                    }
+                    el.setAttribute('placeholder', '');
+                });
+            });
+
+            window.addEventListener('afterprint', () =>
+            {
+                document.querySelectorAll('[data-orig-placeholder]').forEach(el =>
+                {
+                    el.setAttribute('placeholder', el.getAttribute('data-orig-placeholder') || '');
+                    el.removeAttribute('data-orig-placeholder');
+                });
+            });
         });
     </script>
 </body>

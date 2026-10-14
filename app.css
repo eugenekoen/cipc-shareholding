@@ -1369,14 +1369,34 @@ button,
     .shareholder-record,
     .info-record,
     .shareholding-summary,
+    .shares-activity-section,
+    .balance-section,
     #cm42Container .form-section {
         page-break-inside: avoid !important;
+        break-inside: avoid !important;
         box-shadow: none !important;
+    }
+
+    .shareholder-record,
+    .info-record {
+        -webkit-box-decoration-break: clone;
+        box-decoration-break: clone;
+    }
+
+    .transaction-row {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    .transaction-headers {
+        page-break-after: avoid !important;
+        break-after: avoid !important;
     }
 
     .shareholder-records-container>h3,
     #beneficialTab>h3 {
         page-break-after: avoid !important;
+        break-after: avoid !important;
     }
 
     /* Solid standard line borders for print */
@@ -1418,6 +1438,33 @@ button,
         border-radius: 2px !important;
     }
 
+    /* Hide placeholders in print/PDF output so empty fields remain cleanly blank */
+    input::placeholder,
+    textarea::placeholder {
+        color: transparent !important;
+        opacity: 0 !important;
+        -webkit-text-fill-color: transparent !important;
+    }
+
+    input::-webkit-input-placeholder,
+    textarea::-webkit-input-placeholder {
+        color: transparent !important;
+        opacity: 0 !important;
+        -webkit-text-fill-color: transparent !important;
+    }
+
+    input::-moz-placeholder,
+    textarea::-moz-placeholder {
+        color: transparent !important;
+        opacity: 0 !important;
+    }
+
+    input:-ms-input-placeholder,
+    textarea:-ms-input-placeholder {
+        color: transparent !important;
+        opacity: 0 !important;
+    }
+
     input[readonly] {
         background-color: #f2f2f2 !important;
         color: #000 !important;
@@ -1441,6 +1488,22 @@ button,
     .balance-section {
         background-color: #f2f7fa !important;
         border: 1px solid #000 !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        page-break-before: auto !important;
+        break-before: auto !important;
+        display: block !important;
+    }
+
+    .balance-section h5 {
+        page-break-after: avoid !important;
+        break-after: avoid !important;
+    }
+
+    .balance-section .input-row,
+    .balance-section .input-row>.form-group {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
     }
 
     .summary-table th {

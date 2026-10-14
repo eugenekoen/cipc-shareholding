@@ -1416,8 +1416,33 @@
             }
         }
 
+        function hidePrintPlaceholders()
+        {
+            document.querySelectorAll('input[placeholder], textarea[placeholder]').forEach(el =>
+            {
+                if (!el.hasAttribute('data-orig-placeholder'))
+                {
+                    el.setAttribute('data-orig-placeholder', el.getAttribute('placeholder') || '');
+                }
+                el.setAttribute('placeholder', '');
+            });
+        }
+
+        function restorePrintPlaceholders()
+        {
+            document.querySelectorAll('[data-orig-placeholder]').forEach(el =>
+            {
+                el.setAttribute('placeholder', el.getAttribute('data-orig-placeholder') || '');
+                el.removeAttribute('data-orig-placeholder');
+            });
+        }
+
+        window.addEventListener('beforeprint', hidePrintPlaceholders);
+        window.addEventListener('afterprint', restorePrintPlaceholders);
+
         function prepareAndPrint(printClass)
         {
+            hidePrintPlaceholders();
             document.body.className = printClass;
             const style = document.createElement('style');
             if (printClass === 'printing-cm42')
@@ -1433,6 +1458,7 @@
 
             setTimeout(() =>
             {
+                restorePrintPlaceholders();
                 document.body.className = '';
                 document.head.removeChild(style);
             }, 500);
