@@ -107,6 +107,19 @@ h2 {
     z-index: 100;
 }
 
+.print-zero-shares-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.print-zero-shares-option input {
+    flex-shrink: 0;
+    accent-color: var(--primary);
+}
+
 /* Modern Button Base */
 button, 
 .config-controls button {
@@ -1350,8 +1363,8 @@ button,
     }
 
     /* Inactive shareholders zero allocations hidden in register */
-    body.printing-register .shareholder-record.zero-shares,
-    body.printing-all .shareholder-record.zero-shares {
+    body.printing-register:not([data-print-zero-shares="true"]) .shareholder-record.zero-shares,
+    body.printing-all:not([data-print-zero-shares="true"]) .shareholder-record.zero-shares {
         display: none !important;
     }
 

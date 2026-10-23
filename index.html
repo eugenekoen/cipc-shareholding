@@ -30,6 +30,11 @@
             <button type="button" id="printSummaryBtn" class="print-btn">Print Summary</button>
             <button type="button" id="printBeneficialBtn" class="print-btn" style="background-color: #17a2b8;">Print
                 Beneficial Info</button>
+            <label class="print-zero-shares-option" for="printZeroShares">
+                <input type="checkbox" id="printZeroShares"
+                    onchange="document.body.dataset.printZeroShares = this.checked">
+                Include zero-balance shareholders
+            </label>
         </div>
 
         <div class="tab-nav">
