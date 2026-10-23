@@ -622,7 +622,13 @@
                 cells.r3c2.innerHTML = r3c2_content;
             }
             newRecordDiv.querySelectorAll('.idNumber, .idCountry, .registrationNumber, .registrationCountryInput').forEach(el => el.addEventListener('input', updateShareholdingSummary));
-            shareholderRegisterDiv.appendChild(newRecordDiv);
+            if (data)
+            {
+                shareholderRegisterDiv.appendChild(newRecordDiv);
+            } else
+            {
+                shareholderRegisterDiv.prepend(newRecordDiv);
+            }
 
             if (data)
             {
@@ -1391,6 +1397,17 @@
                 }
             });
 
+            const orderedRecords = Array.from(shareholderRegisterDiv.children).sort((first, second) =>
+                Number(first.classList.contains('zero-shares')) - Number(second.classList.contains('zero-shares')));
+            orderedRecords.forEach((record, index) =>
+            {
+                const currentRecord = shareholderRegisterDiv.children[index];
+                if (currentRecord !== record)
+                {
+                    shareholderRegisterDiv.insertBefore(record, currentRecord);
+                }
+            });
+
             summaryTotalSharesHeldEl.textContent = grandTotalSharesHeld;
             const unaccountedShares = companyTotalIssuedShares - grandTotalSharesHeld;
             if (unaccountedShares !== 0)
@@ -1449,6 +1466,13 @@
         {
             hidePrintPlaceholders();
             document.body.className = printClass;
+            const summary = document.querySelector('.shareholding-summary');
+            const summaryParent = summary.parentNode;
+            const summaryNextSibling = summary.nextSibling;
+            if (printClass === 'printing-register' || printClass === 'printing-all')
+            {
+                document.getElementById('shareholderRegisterContainer').before(summary);
+            }
             const style = document.createElement('style');
             if (printClass === 'printing-cm42')
             {
@@ -1464,6 +1488,7 @@
             setTimeout(() =>
             {
                 restorePrintPlaceholders();
+                summaryParent.insertBefore(summary, summaryNextSibling);
                 document.body.className = '';
                 document.head.removeChild(style);
             }, 500);

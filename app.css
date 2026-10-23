@@ -1346,6 +1346,7 @@ button,
         display: block !important;
     }
 
+    body.printing-register .shareholding-summary,
     body.printing-summary .shareholding-summary,
     body.printing-all .shareholding-summary {
         display: block !important;
@@ -1356,7 +1357,6 @@ button,
     }
 
     /* Hide irrelevant details depending on what is being generated */
-    body.printing-register .shareholding-summary,
     body.printing-beneficial .shareholding-summary,
     body.printing-beneficial .company-details {
         display: none !important;
@@ -1373,8 +1373,23 @@ button,
         display: none !important;
     }
 
+    body.printing-register .shareholding-summary,
+    body.printing-all .shareholding-summary,
     body.printing-summary .shareholding-summary {
         page-break-before: auto !important;
+        break-before: auto !important;
+    }
+
+    body.printing-register .shareholding-summary,
+    body.printing-all .shareholding-summary {
+        page-break-inside: auto !important;
+        break-inside: auto !important;
+    }
+
+    body.printing-register .shareholder-records-container,
+    body.printing-all .shareholder-records-container {
+        page-break-before: always !important;
+        break-before: page !important;
     }
 
     /* Prevent awkward mid-card print page breaks */
